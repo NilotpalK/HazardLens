@@ -10,7 +10,7 @@
 
 North-East India faces **frequent floods** (Brahmaputra basin), **landslides** in hilly regions, and **heavy monsoon rainfall**. Disaster response is slow because information reaches authorities late.
 
-**Key Insight:** During disasters, people post on social media *immediately* — but this data is unstructured and ignored by official response systems.
+**Key Insight:** During disasters, people post on social media _immediately_ — but this data is unstructured and ignored by official response systems.
 
 ## 💡 Our Solution
 
@@ -24,16 +24,16 @@ Social Media → NER Pipeline → Geocoding → Live Map + Alerts
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 🗺️ **Live Map** | MapLibre GL dark map with severity-colored markers across NE India |
-| 🔥 **Heatmap Hotspots** | Density overlay showing disaster spread patterns |
-| 📡 **Real-Time Feed** | SSE-powered live tweet stream with auto-scroll |
-| 🧠 **NER Pipeline** | Extracts LOCATION, DISASTER_TYPE, SEVERITY, AFFECTED_COUNT |
-| 📊 **Timeline Trends** | Recharts area chart with playback showing spread over time |
-| 🚨 **Push Notifications** | Browser alerts for critical-severity disasters |
-| 🎮 **Simulation Controls** | Play/pause, speed control for demo purposes |
-| 🔍 **Filter by Type** | Flood, Landslide, Heavy Rain, Infrastructure |
+| Feature                    | Description                                                        |
+| -------------------------- | ------------------------------------------------------------------ |
+| 🗺️ **Live Map**            | MapLibre GL dark map with severity-colored markers across NE India |
+| 🔥 **Heatmap Hotspots**    | Density overlay showing disaster spread patterns                   |
+| 📡 **Real-Time Feed**      | SSE-powered live tweet stream with auto-scroll                     |
+| 🧠 **NER Pipeline**        | Extracts LOCATION, DISASTER_TYPE, SEVERITY, AFFECTED_COUNT         |
+| 📊 **Timeline Trends**     | Recharts area chart with playback showing spread over time         |
+| 🚨 **Push Notifications**  | Browser alerts for critical-severity disasters                     |
+| 🎮 **Simulation Controls** | Play/pause, speed control for demo purposes                        |
+| 🔍 **Filter by Type**      | Flood, Landslide, Heavy Rain, Infrastructure                       |
 
 ---
 
@@ -63,11 +63,11 @@ Open **http://localhost:5173** 🎉
 ```
 HazardLens/
 ├── server/
-│   ├── index.cjs           # Express server + SSE streaming
-│   ├── nlpPipeline.cjs     # NER engine — classification + entity extraction
-│   ├── geocoder.cjs        # 80+ NE India locations with lat/lng
-│   ├── fakeData.cjs        # 120 realistic disaster tweets for demo
-│   └── eventStore.cjs      # In-memory store with aggregations
+│   ├── index.js            # Express server + SSE streaming
+│   ├── nlpPipeline.js      # NER engine — classification + entity extraction
+│   ├── geocoder.js         # 80+ NE India locations with lat/lng
+│   ├── fakeData.js         # 120 realistic disaster tweets for demo
+│   └── eventStore.js       # In-memory store with aggregations
 ├── src/
 │   ├── App.jsx              # Main app shell
 │   ├── components/
@@ -123,4 +123,4 @@ MIT
 
 ---
 
-*Built for the NER Hackathon — Tackling disaster response in North-East India through social media intelligence.*
+_Built for the NER Hackathon — Tackling disaster response in North-East India through social media intelligence._
