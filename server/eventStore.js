@@ -23,7 +23,7 @@ class EventStore {
   }
 
   getByTimeRange(startTime, endTime) {
-    return this.events.filter(e => {
+    return this.events.filter((e) => {
       const t = new Date(e.timestamp).getTime();
       return t >= startTime && t <= endTime;
     });
@@ -31,7 +31,9 @@ class EventStore {
 
   getStats() {
     const now = Date.now();
-    const last24h = this.events.filter(e => now - new Date(e.timestamp).getTime() < 24 * 3600 * 1000);
+    const last24h = this.events.filter(
+      (e) => now - new Date(e.timestamp).getTime() < 24 * 3600 * 1000,
+    );
 
     const byType = {};
     const byState = {};
@@ -58,10 +60,13 @@ class EventStore {
     const locationCounts = {};
     for (const event of last24h) {
       if (event.locationName) {
-        locationCounts[event.locationName] = (locationCounts[event.locationName] || 0) + 1;
+        locationCounts[event.locationName] =
+          (locationCounts[event.locationName] || 0) + 1;
       }
     }
-    const mostAffected = Object.entries(locationCounts).sort((a, b) => b[1] - a[1])[0];
+    const mostAffected = Object.entries(locationCounts).sort(
+      (a, b) => b[1] - a[1],
+    )[0];
 
     return {
       total: this.events.length,
@@ -70,8 +75,13 @@ class EventStore {
       byState,
       bySeverity,
       byHour,
-      mostAffected: mostAffected ? { name: mostAffected[0], count: mostAffected[1] } : null,
-      totalAffectedPeople: last24h.reduce((sum, e) => sum + (e.affectedCount || 0), 0),
+      mostAffected: mostAffected
+        ? { name: mostAffected[0], count: mostAffected[1] }
+        : null,
+      totalAffectedPeople: last24h.reduce(
+        (sum, e) => sum + (e.affectedCount || 0),
+        0,
+      ),
     };
   }
 
@@ -83,7 +93,7 @@ class EventStore {
     for (let i = hours; i >= 0; i--) {
       const bucketStart = now - i * bucketSize;
       const bucketEnd = bucketStart + bucketSize;
-      const events = this.events.filter(e => {
+      const events = this.events.filter((e) => {
         const t = new Date(e.timestamp).getTime();
         return t >= bucketStart && t < bucketEnd;
       });
@@ -113,8 +123,8 @@ class EventStore {
       filtered = this.getByTimeRange(startTime, endTime);
     }
     return filtered
-      .filter(e => e.lat && e.lng)
-      .map(e => ({
+      .filter((e) => e.lat && e.lng)
+      .map((e) => ({
         lat: e.lat,
         lng: e.lng,
         intensity: e.severityLevel / 4,
@@ -122,4 +132,4 @@ class EventStore {
   }
 }
 
-module.exports = { EventStore };
+export { EventStore };

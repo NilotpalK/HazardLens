@@ -1,11 +1,11 @@
 // HazardLens Express Server — REST API + SSE for real-time streaming
 
-const express = require('express');
-const cors = require('cors');
-const { processText } = require('./nlpPipeline.cjs');
-const { geocodeBest, jitter } = require('./geocoder.cjs');
-const { generateTweet, generateHistoricalBatch } = require('./fakeData.cjs');
-const { EventStore } = require('./eventStore.cjs');
+import express from "express";
+import cors from "cors";
+import { processText } from "./nlpPipeline.js";
+import { geocodeBest, jitter } from "./geocoder.js";
+import { generateTweet, generateHistoricalBatch } from "./fakeData.js";
+import { EventStore } from "./eventStore.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,20 +18,20 @@ const sseClients = [];
 
 // --- SSE Setup ---
 function broadcastEvent(event) {
-  sseClients.forEach(res => {
+  sseClients.forEach((res) => {
     res.write(`data: ${JSON.stringify(event)}\n\n`);
   });
 }
 
-app.get('/api/events/stream', (req, res) => {
+app.get("/api/events/stream", (req, res) => {
   res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    Connection: 'keep-alive',
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
   });
-  res.write(`data: ${JSON.stringify({ type: 'connected' })}\n\n`);
+  res.write(`data: ${JSON.stringify({ type: "connected" })}\n\n`);
   sseClients.push(res);
-  req.on('close', () => {
+  req.on("close", () => {
     const idx = sseClients.indexOf(res);
     if (idx !== -1) sseClients.splice(idx, 1);
   });
@@ -42,7 +42,9 @@ function processTweet(tweet) {
   const nlp = processText(tweet.text);
   if (!nlp.isDisaster) return null;
 
-  const geo = geocodeBest(nlp.locations.length > 0 ? nlp.locations : tweet.hintLocations || []);
+  const geo = geocodeBest(
+    nlp.locations.length > 0 ? nlp.locations : tweet.hintLocations || [],
+  );
   if (!geo) return null;
 
   return {
@@ -65,7 +67,7 @@ function processTweet(tweet) {
 }
 
 // --- REST Endpoints ---
-app.get('/api/events', (req, res) => {
+app.get("/api/events", (req, res) => {
   const { start, end } = req.query;
   if (start && end) {
     res.json(store.getByTimeRange(Number(start), Number(end)));
@@ -74,26 +76,31 @@ app.get('/api/events', (req, res) => {
   }
 });
 
-app.get('/api/events/recent', (req, res) => {
+app.get("/api/events/recent", (req, res) => {
   const count = parseInt(req.query.count) || 50;
   res.json(store.getRecent(count));
 });
 
-app.get('/api/stats', (req, res) => {
+app.get("/api/stats", (req, res) => {
   res.json(store.getStats());
 });
 
-app.get('/api/trends', (req, res) => {
+app.get("/api/trends", (req, res) => {
   const hours = parseInt(req.query.hours) || 48;
   res.json(store.getTrendData(hours));
 });
 
-app.get('/api/heatmap', (req, res) => {
+app.get("/api/heatmap", (req, res) => {
   const { start, end } = req.query;
-  res.json(store.getHeatmapData(start ? Number(start) : null, end ? Number(end) : null));
+  res.json(
+    store.getHeatmapData(
+      start ? Number(start) : null,
+      end ? Number(end) : null,
+    ),
+  );
 });
 
-app.post('/api/simulate', (req, res) => {
+app.post("/api/simulate", (req, res) => {
   const count = Math.min(parseInt(req.body?.count) || 10, 50);
   const events = [];
   for (let i = 0; i < count; i++) {
@@ -143,23 +150,23 @@ function stopSimulation() {
   if (simulationInterval) {
     clearInterval(simulationInterval);
     simulationInterval = null;
-    console.log('⏸️  Simulation paused');
+    console.log("⏸️  Simulation paused");
   }
 }
 
-app.post('/api/simulation/start', (req, res) => {
+app.post("/api/simulation/start", (req, res) => {
   simulationSpeed = Math.max(2000, parseInt(req.body?.interval) || 8000);
   stopSimulation();
   startSimulation();
-  res.json({ status: 'running', interval: simulationSpeed });
+  res.json({ status: "running", interval: simulationSpeed });
 });
 
-app.post('/api/simulation/stop', (req, res) => {
+app.post("/api/simulation/stop", (req, res) => {
   stopSimulation();
-  res.json({ status: 'stopped' });
+  res.json({ status: "stopped" });
 });
 
-app.get('/api/simulation/status', (req, res) => {
+app.get("/api/simulation/status", (req, res) => {
   res.json({ running: !!simulationInterval, interval: simulationSpeed });
 });
 
