@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
-import LiveMap from './components/LiveMap';
-import LiveFeed from './components/LiveFeed';
-import AlertBanner from './components/AlertBanner';
-import TimelinePanel from './components/TimelinePanel';
+import { useState, useEffect, useCallback } from "react";
+import LiveMap from "./components/LiveMap";
+import LiveFeed from "./components/LiveFeed";
+import AlertBanner from "./components/AlertBanner";
+import TimelinePanel from "./components/TimelinePanel";
+import AddTweetModal from "./components/AddTweetModal";
 import {
   fetchEvents,
   createEventStream,
   startSimulation,
   stopSimulation,
-} from './utils/api';
-import './components/ControlBar.css';
+} from "./utils/api";
+import "./components/ControlBar.css";
 
 export default function App() {
   const [events, setEvents] = useState([]);
@@ -22,16 +23,17 @@ export default function App() {
   const [timelineActive, setTimelineActive] = useState(false);
   const [timeRange, setTimeRange] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [feedOpen, setFeedOpen] = useState(false);
 
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
+    if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
   }, []);
 
   useEffect(() => {
-    fetchEvents().then(data => {
+    fetchEvents().then((data) => {
       setEvents(data);
       setDisplayEvents(data);
     });
@@ -39,12 +41,12 @@ export default function App() {
 
   useEffect(() => {
     const es = createEventStream((event) => {
-      setEvents(prev => {
+      setEvents((prev) => {
         const updated = [...prev, event];
         return updated.slice(-500);
       });
 
-      if (event.severity === 'critical') {
+      if (event.severity === "critical") {
         setCriticalAlert(event);
       }
     });
@@ -75,14 +77,17 @@ export default function App() {
     }
   };
 
-  const handleTimeRangeChange = useCallback((start, end) => {
-    setTimeRange({ start, end });
-    const filtered = events.filter(e => {
-      const t = new Date(e.timestamp).getTime();
-      return t >= start && t <= end;
-    });
-    setDisplayEvents(filtered);
-  }, [events]);
+  const handleTimeRangeChange = useCallback(
+    (start, end) => {
+      setTimeRange({ start, end });
+      const filtered = events.filter((e) => {
+        const t = new Date(e.timestamp).getTime();
+        return t >= start && t <= end;
+      });
+      setDisplayEvents(filtered);
+    },
+    [events],
+  );
 
   const handleToggleTimeline = () => {
     setTimelineActive(!timelineActive);
@@ -110,31 +115,39 @@ export default function App() {
       )}
 
       {/* Floating bottom control bar — lifts above timeline */}
-      <div className={`control-bar ${timelineActive ? 'control-bar-lifted' : ''}`}>
+      <div
+        className={`control-bar ${timelineActive ? "control-bar-lifted" : ""}`}
+      >
         <div className="control-bar-inner">
           <button
-            className={`cb-btn ${isLive ? 'cb-active' : ''}`}
+            className={`cb-btn ${isLive ? "cb-active" : ""}`}
             onClick={handleToggleLive}
           >
-            {isLive ? 'Live' : 'Paused'}
+            {isLive ? "Live" : "Paused"}
           </button>
           <button
-            className={`cb-btn ${heatmapActive ? 'cb-active' : ''}`}
+            className={`cb-btn ${heatmapActive ? "cb-active" : ""}`}
             onClick={() => setHeatmapActive(!heatmapActive)}
           >
             Heatmap
           </button>
           <button
-            className={`cb-btn ${feedOpen ? 'cb-active' : ''}`}
+            className={`cb-btn ${feedOpen ? "cb-active" : ""}`}
             onClick={() => setFeedOpen(!feedOpen)}
           >
             Feed
           </button>
           <button
-            className={`cb-btn ${timelineActive ? 'cb-active' : ''}`}
+            className={`cb-btn ${timelineActive ? "cb-active" : ""}`}
             onClick={handleToggleTimeline}
           >
             Timeline
+          </button>
+          <button
+            className={`cb-btn ${isAddModalOpen ? "cb-active" : ""}`}
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            Report
           </button>
         </div>
       </div>
@@ -161,6 +174,10 @@ export default function App() {
           }}
           onTimeRangeChange={handleTimeRangeChange}
         />
+      )}
+
+      {isAddModalOpen && (
+        <AddTweetModal onClose={() => setIsAddModalOpen(false)} />
       )}
     </div>
   );

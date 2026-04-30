@@ -59,13 +59,27 @@ const createTooltipElement = (event) => {
       <span class="mtc-name">${event.locationName || "Unknown"}</span>
       <span class="mtc-handle">${event.handle || "@unknown"}</span>
     </div>
-    <div class="mtc-text">${event.text.substring(0, 100)}${event.text.length > 100 ? "…" : ""}</div>
+    <div class="mtc-text" id="mtc-text-${event.id}">${event.text.substring(0, 100)}${event.text.length > 100 ? "…" : ""}</div>
     <div class="mtc-footer">
       <span class="mtc-stat">${ICON.reply} ${fmt(engagement.replies)}</span>
       <span class="mtc-stat">${ICON.heart} ${fmt(engagement.likes)}</span>
       <span class="mtc-stat">${ICON.retweet} ${fmt(engagement.retweets)}</span>
+      ${event.translatedText ? `<button class="mtc-translate-btn" id="mtc-translate-${event.id}">Translate</button>` : ""}
     </div>
   `;
+
+  if (event.translatedText) {
+    const btn = el.querySelector(`#mtc-translate-${event.id}`);
+    const textEl = el.querySelector(`#mtc-text-${event.id}`);
+    let isTranslated = false;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isTranslated = !isTranslated;
+      const textToShow = isTranslated ? event.translatedText : event.text;
+      textEl.innerText = textToShow.substring(0, 100) + (textToShow.length > 100 ? "…" : "");
+      btn.innerText = isTranslated ? "Original" : "Translate";
+    });
+  }
   return el;
 };
 
@@ -87,13 +101,14 @@ const createPopupElement = (event) => {
       </div>
       <span class="mtp-severity">${severity}</span>
     </div>
-    <div class="mtp-text">${event.text}</div>
+    <div class="mtp-text" id="mtp-text-${event.id}">${event.text}</div>
     <div class="mtp-meta">
       <span class="mtp-type">${typeLabel}</span>
       <span class="mtp-separator">·</span>
       <span class="mtp-time">${timeAgo(event.timestamp)}</span>
       <span class="mtp-separator">·</span>
       <span class="mtp-relevancy">${relevancy}%</span>
+      ${event.translatedText ? `<button class="mtp-translate-btn" id="mtp-translate-${event.id}">Translate</button>` : ""}
     </div>
     <div class="mtp-engagement">
       <span>${ICON.reply} ${engagement.replies || 0}</span>
@@ -102,6 +117,18 @@ const createPopupElement = (event) => {
       <span>${ICON.views} ${engagement.views || 0}</span>
     </div>
   `;
+
+  if (event.translatedText) {
+    const btn = el.querySelector(`#mtp-translate-${event.id}`);
+    const textEl = el.querySelector(`#mtp-text-${event.id}`);
+    let isTranslated = false;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isTranslated = !isTranslated;
+      textEl.innerText = isTranslated ? event.translatedText : event.text;
+      btn.innerText = isTranslated ? "Original" : "Translate";
+    });
+  }
   return el;
 };
 
@@ -357,9 +384,12 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
           };
         });
 
-      // Clear existing markers then set new ones
-      managerRef.current.removeMarkers();
-      managerRef.current.updateMarkers(managerMarkers);
+      // Set new markers (MapManager handles diffing automatically)
+      try {
+        managerRef.current.updateMarkers(managerMarkers);
+      } catch (err) {
+        console.error("Error updating markers:", err);
+      }
     };
 
     if (map.isStyleLoaded()) {
