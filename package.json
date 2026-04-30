@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@arenarium/maps": "^1.4.20",
+    "@arenarium/maps-integration-maplibre": "^1.0.24",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "leaflet": "^1.9.4",

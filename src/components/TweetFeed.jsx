@@ -4,6 +4,7 @@ import './TweetFeed.css';
 
 export default function TweetFeed({ events, onSelectEvent }) {
   const [filter, setFilter] = useState('all');
+  const [isOpen, setIsOpen] = useState(true);
   const listRef = useRef(null);
 
   const filtered = filter === 'all'
@@ -20,15 +21,20 @@ export default function TweetFeed({ events, onSelectEvent }) {
   }, [events.length]);
 
   return (
-    <div className="tweet-feed glass-panel" id="tweet-feed">
-      <div className="feed-header">
+    <div className={`tweet-feed glass-panel ${!isOpen ? 'collapsed' : ''}`} id="tweet-feed">
+      <div className="feed-header" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer' }}>
         <div className="feed-title">
           📡 Live Feed
           <span className="feed-count">{sorted.length}</span>
         </div>
+        <button className="feed-close-btn" style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          {isOpen ? '▼' : '▲'}
+        </button>
       </div>
 
-      <div className="feed-filters">
+      {isOpen && (
+        <>
+          <div className="feed-filters">
         <button
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
@@ -75,7 +81,9 @@ export default function TweetFeed({ events, onSelectEvent }) {
             </div>
           </div>
         ))}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
