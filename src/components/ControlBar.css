@@ -1,0 +1,73 @@
+/* Floating bottom control bar — Vercel style */
+.control-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.control-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #171717;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 4px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cb-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  -webkit-font-smoothing: antialiased;
+}
+
+.cb-btn:hover {
+  color: #ededed;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cb-btn.cb-active {
+  color: #fafafa;
+  background: #333;
+}
+
+.cb-select {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+.cb-select:hover {
+  color: #ededed;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cb-select option {
+  background: #171717;
+  color: #ededed;
+}

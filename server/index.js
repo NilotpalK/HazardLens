@@ -39,8 +39,27 @@ app.get("/api/events/stream", (req, res) => {
 
 // --- Process a raw tweet into a structured event ---
 function processTweet(tweet) {
-  const nlp = processText(tweet.text);
+  // Get corroboration data from store (recent events from same location)
+  const hintLoc = tweet.hintLocations?.[0] || "";
+  const recentLocationEvents = store.getRecentByLocation(hintLoc);
+
+  const nlp = processText(tweet.text, {
+    engagement: tweet.engagement || {},
+    handle: tweet.handle || "",
+    accountMeta: tweet.accountMeta || {},
+    recentLocationEvents,
+  });
+
   if (!nlp.isDisaster) return null;
+
+  // Check relevancy — filter noise
+  if (!nlp.isRelevant) {
+    store.incrementNoiseFiltered();
+    console.log(
+      `🚫 Filtered noise (relevancy: ${nlp.relevancyScore}): "${tweet.text.substring(0, 60)}..."`,
+    );
+    return null;
+  }
 
   const geo = geocodeBest(
     nlp.locations.length > 0 ? nlp.locations : tweet.hintLocations || [],
@@ -63,6 +82,9 @@ function processTweet(tweet) {
     lng: jitter(geo.lng),
     confidence: nlp.confidence,
     affectedCount: nlp.affectedCount,
+    relevancyScore: nlp.relevancyScore,
+    relevancyBreakdown: nlp.relevancyBreakdown,
+    engagement: tweet.engagement || {},
   };
 }
 
@@ -85,6 +107,14 @@ app.get("/api/stats", (req, res) => {
   res.json(store.getStats());
 });
 
+app.get("/api/events/filtered", (req, res) => {
+  const minRelevancy = parseFloat(req.query.minRelevancy) || 0.4;
+  const events = store
+    .getAll()
+    .filter((e) => (e.relevancyScore || 0) >= minRelevancy);
+  res.json(events);
+});
+
 app.get("/api/trends", (req, res) => {
   const hours = parseInt(req.query.hours) || 48;
   res.json(store.getTrendData(hours));
@@ -98,6 +128,53 @@ app.get("/api/heatmap", (req, res) => {
       end ? Number(end) : null,
     ),
   );
+});
+
+// --- Custom tweet submission ---
+app.post("/api/tweet", async (req, res) => {
+  const { text, handle } = req.body;
+  if (!text || typeof text !== "string" || text.trim().length === 0) {
+    return res.status(400).json({ error: "text is required" });
+  }
+
+  const tweet = {
+    id: `tw_custom_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+    text: text.trim(),
+    handle: handle || "@custom_user",
+    source: "manual",
+    timestamp: new Date().toISOString(),
+    hintLocations: [],
+    engagement: { likes: 0, retweets: 0, replies: 0, views: 0 },
+    accountMeta: { isVerified: false, followerCount: 100, accountAgeDays: 365 },
+  };
+
+  const event = processTweet(tweet);
+
+  if (!event) {
+    // Still return the NLP analysis even if filtered
+    const nlp = processText(text.trim(), {
+      engagement: tweet.engagement,
+      handle: tweet.handle,
+      accountMeta: tweet.accountMeta,
+      recentLocationEvents: [],
+    });
+    return res.json({
+      accepted: false,
+      reason: !nlp.isDisaster
+        ? "No disaster keywords detected"
+        : "Filtered as noise (relevancy too low)",
+      nlpResult: nlp,
+      tweet,
+    });
+  }
+
+  store.add(event);
+  broadcastEvent(event);
+
+  res.json({
+    accepted: true,
+    event,
+  });
 });
 
 app.post("/api/simulate", (req, res) => {

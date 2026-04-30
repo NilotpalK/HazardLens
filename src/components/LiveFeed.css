@@ -1,0 +1,174 @@
+/* Live Feed — glassmorphism sidebar */
+.live-feed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 340px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.live-feed.feed-collapsed {
+  transform: translateX(calc(100% - 40px));
+}
+
+/* Toggle button */
+.feed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  color: #888;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.feed-toggle:hover {
+  color: #ededed;
+}
+
+.feed-toggle-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
+}
+
+.feed-toggle-label {
+  color: #fafafa;
+  font-weight: 500;
+}
+
+.feed-toggle-count {
+  color: #555;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.feed-toggle-arrow {
+  margin-left: auto;
+  font-size: 16px;
+  color: #555;
+}
+
+/* List */
+.feed-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+.feed-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.feed-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.feed-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+}
+
+/* Feed item */
+.feed-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.feed-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.feed-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.feed-item-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.feed-item-dot.critical {
+  background: #fafafa;
+  box-shadow: 0 0 6px rgba(255,255,255,0.4);
+}
+.feed-item-dot.high { background: #ccc; }
+.feed-item-dot.moderate { background: #666; }
+.feed-item-dot.low { background: #444; }
+
+.feed-item-handle {
+  font-size: 12px;
+  font-weight: 500;
+  color: #ededed;
+  letter-spacing: -0.01em;
+}
+
+.feed-item-time {
+  margin-left: auto;
+  font-size: 10px;
+  color: #444;
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+}
+
+.feed-item-text {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #888;
+  letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.feed-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+}
+
+.feed-item-type {
+  color: #555;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.feed-item-sep {
+  color: #333;
+}
+
+.feed-item-loc {
+  color: #444;
+  text-transform: capitalize;
+}

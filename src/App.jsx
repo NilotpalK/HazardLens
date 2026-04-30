@@ -1,38 +1,31 @@
-import { useState, useEffect, useCallback } from 'react';
-import Navbar from './components/Navbar';
+import { useState, useEffect } from 'react';
 import LiveMap from './components/LiveMap';
-import TweetFeed from './components/TweetFeed';
-import StatsPanel from './components/StatsPanel';
+import LiveFeed from './components/LiveFeed';
 import AlertBanner from './components/AlertBanner';
-import TimelinePanel from './components/TimelinePanel';
 import {
   fetchEvents,
-  fetchEventsByTime,
   createEventStream,
   startSimulation,
   stopSimulation,
 } from './utils/api';
+import './components/ControlBar.css';
 
 export default function App() {
   const [events, setEvents] = useState([]);
   const [displayEvents, setDisplayEvents] = useState([]);
   const [isLive, setIsLive] = useState(true);
   const [heatmapActive, setHeatmapActive] = useState(false);
-  const [timelineActive, setTimelineActive] = useState(false);
   const [speed, setSpeed] = useState(8000);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [criticalAlert, setCriticalAlert] = useState(null);
-  const [timeRange, setTimeRange] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Request notification permission on mount
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
   }, []);
 
-  // Load initial events
   useEffect(() => {
     fetchEvents().then(data => {
       setEvents(data);
@@ -40,7 +33,6 @@ export default function App() {
     });
   }, []);
 
-  // SSE real-time stream
   useEffect(() => {
     const es = createEventStream((event) => {
       setEvents(prev => {
@@ -48,7 +40,6 @@ export default function App() {
         return updated.slice(-500);
       });
 
-      // Show critical alerts
       if (event.severity === 'critical') {
         setCriticalAlert(event);
       }
@@ -57,24 +48,10 @@ export default function App() {
     return () => es.close();
   }, []);
 
-  // Update display events (live vs historical)
   useEffect(() => {
-    if (!timeRange) {
-      setDisplayEvents(events);
-    }
-  }, [events, timeRange]);
-
-  // Handle time range from timeline
-  const handleTimeRangeChange = useCallback((start, end) => {
-    setTimeRange({ start, end });
-    const filtered = events.filter(e => {
-      const t = new Date(e.timestamp).getTime();
-      return t >= start && t <= end;
-    });
-    setDisplayEvents(filtered);
+    setDisplayEvents(events);
   }, [events]);
 
-  // Toggle simulation
   const handleToggleLive = async () => {
     if (isLive) {
       await stopSimulation();
@@ -85,7 +62,6 @@ export default function App() {
     }
   };
 
-  // Change simulation speed
   const handleSpeedChange = async (newSpeed) => {
     setSpeed(newSpeed);
     if (isLive) {
@@ -93,30 +69,8 @@ export default function App() {
     }
   };
 
-  // Toggle timeline
-  const handleToggleTimeline = () => {
-    setTimelineActive(!timelineActive);
-    if (timelineActive) {
-      setTimeRange(null);
-      setDisplayEvents(events);
-    }
-  };
-
   return (
     <div id="app">
-      <Navbar
-        isLive={isLive}
-        onToggleLive={handleToggleLive}
-        heatmapActive={heatmapActive}
-        onToggleHeatmap={() => setHeatmapActive(!heatmapActive)}
-        onSpeedChange={handleSpeedChange}
-        speed={speed}
-        timelineActive={timelineActive}
-        onToggleTimeline={handleToggleTimeline}
-        isDarkMode={isDarkMode}
-        onToggleTheme={() => setIsDarkMode(!isDarkMode)}
-      />
-
       <LiveMap
         events={displayEvents}
         heatmapActive={heatmapActive}
@@ -124,12 +78,38 @@ export default function App() {
         isDarkMode={isDarkMode}
       />
 
-      <StatsPanel events={displayEvents} />
-
-      <TweetFeed
+      <LiveFeed
         events={displayEvents}
         onSelectEvent={(event) => setSelectedEvent(event)}
       />
+
+      {/* Floating bottom control bar */}
+      <div className="control-bar">
+        <div className="control-bar-inner">
+          <button
+            className={`cb-btn ${isLive ? 'cb-active' : ''}`}
+            onClick={handleToggleLive}
+          >
+            {isLive ? 'Live' : 'Paused'}
+          </button>
+          <button
+            className={`cb-btn ${heatmapActive ? 'cb-active' : ''}`}
+            onClick={() => setHeatmapActive(!heatmapActive)}
+          >
+            Heatmap
+          </button>
+          <select
+            className="cb-select"
+            value={speed}
+            onChange={(e) => handleSpeedChange(Number(e.target.value))}
+          >
+            <option value={3000}>Fast</option>
+            <option value={5000}>Medium</option>
+            <option value={8000}>Normal</option>
+            <option value={15000}>Slow</option>
+          </select>
+        </div>
+      </div>
 
       {criticalAlert && (
         <AlertBanner
@@ -139,18 +119,6 @@ export default function App() {
             setSelectedEvent(event);
             setCriticalAlert(null);
           }}
-        />
-      )}
-
-      {timelineActive && (
-        <TimelinePanel
-          events={events}
-          onClose={() => {
-            setTimelineActive(false);
-            setTimeRange(null);
-            setDisplayEvents(events);
-          }}
-          onTimeRangeChange={handleTimeRangeChange}
         />
       )}
     </div>
