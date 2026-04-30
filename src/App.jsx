@@ -23,6 +23,7 @@ export default function App() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [criticalAlert, setCriticalAlert] = useState(null);
   const [timeRange, setTimeRange] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Request notification permission on mount
   useEffect(() => {
@@ -112,12 +113,15 @@ export default function App() {
         speed={speed}
         timelineActive={timelineActive}
         onToggleTimeline={handleToggleTimeline}
+        isDarkMode={isDarkMode}
+        onToggleTheme={() => setIsDarkMode(!isDarkMode)}
       />
 
       <LiveMap
         events={displayEvents}
         heatmapActive={heatmapActive}
         selectedEvent={selectedEvent}
+        isDarkMode={isDarkMode}
       />
 
       <StatsPanel events={displayEvents} />

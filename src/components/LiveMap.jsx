@@ -46,12 +46,11 @@ const createPopupElement = (event) => {
   return element;
 };
 
-export default function LiveMap({ events, heatmapActive, selectedEvent }) {
+export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMode }) {
   const mapContainer = useRef(null);
   const providerRef = useRef(null);
   const managerRef = useRef(null);
   const [tokenMissing, setTokenMissing] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Initialize map
   useEffect(() => {
@@ -324,29 +323,6 @@ export default function LiveMap({ events, heatmapActive, selectedEvent }) {
         id="live-map"
         style={{ width: "100%", height: "100%" }}
       />
-      
-      {!tokenMissing && (
-        <button
-          className="map-theme-toggle"
-          style={{
-            position: "absolute",
-            top: "16px",
-            left: "16px",
-            zIndex: 10,
-            background: isDarkMode ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.8)",
-            color: isDarkMode ? "black" : "white",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
-          }}
-          onClick={() => setIsDarkMode(!isDarkMode)}
-        >
-          {isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
-        </button>
-      )}
 
       {tokenMissing && (
         <div
