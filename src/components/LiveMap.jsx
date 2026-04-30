@@ -9,8 +9,21 @@ import "./LiveMap.css";
 
 const NE_INDIA_CENTER = [92.5, 26.0];
 
+const SEVERITY_COLORS = {
+  critical: "#ef4444",
+  high: "#f97316",
+  moderate: "#eab308",
+  low: "#3b82f6",
+};
 
+const SEVERITY_PIN_BG = {
+  critical: "#ef444466",
+  high: "#f9731666",
+  moderate: "#eab30866",
+  low: "#3b82f666",
+};
 
+// --- Pin: severity-colored dot ---
 const createPinElement = (severity) => {
   const el = document.createElement("div");
   el.className = `disaster-marker ${severity}-marker`;
@@ -19,32 +32,80 @@ const createPinElement = (severity) => {
   return el;
 };
 
-const createTooltipElement = (icon, locationName) => {
-  const element = document.createElement("div");
-  element.style.cssText =
-    "width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; white-space: nowrap;";
-  element.textContent = `${icon || "⚠️"} ${locationName || "Unknown"}`;
-  return element;
+// Twitter/X SVG icons (14x14)
+const ICON = {
+  reply: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  retweet: '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2h3.5v2H7.5c-2.21 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H13V4h3.5c2.21 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>',
+  views: '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8.75 21V3h2v18h-2zM18.75 21V8.5h2V21h-2zM13.75 21v-9h2v9h-2zM3.75 21v-4h2v4h-2z"/></svg>',
 };
 
-const createPopupElement = (event) => {
-  const element = document.createElement("div");
-  element.style.cssText = "width: 100%; height: 100%;";
-  element.innerHTML = `
-    <div class="popup-content">
-      <div class="popup-header">
-        <span class="popup-type">${DISASTER_TYPES[event.disasterType]?.icon || "⚠️"} ${DISASTER_TYPES[event.disasterType]?.label || "Unknown"}</span>
-        <span class="severity-badge ${event.severity}">${event.severity}</span>
-      </div>
-      <div class="popup-text">${event.text.substring(0, 200)}${event.text.length > 200 ? "..." : ""}</div>
-      <div class="popup-meta">
-        <span class="popup-location">📍 ${event.locationName || "Unknown"}${event.state ? ", " + event.state : ""}</span>
-        <span class="popup-time">${timeAgo(event.timestamp)}</span>
-      </div>
+// --- Tooltip: tweet card on map with Twitter icons ---
+const createTooltipElement = (event) => {
+  const el = document.createElement("div");
+  el.className = "map-tweet-card";
+  const engagement = event.engagement || {};
+  const severity = event.severity || "low";
+
+  const fmt = (n) => {
+    if (!n) return "0";
+    if (n >= 1000) return (n / 1000).toFixed(1) + "k";
+    return n.toString();
+  };
+
+  el.innerHTML = `
+    <div class="mtc-header">
+      <div class="mtc-dot ${severity}"></div>
+      <span class="mtc-name">${event.locationName || "Unknown"}</span>
+      <span class="mtc-handle">${event.handle || "@unknown"}</span>
+    </div>
+    <div class="mtc-text">${event.text.substring(0, 100)}${event.text.length > 100 ? "…" : ""}</div>
+    <div class="mtc-footer">
+      <span class="mtc-stat">${ICON.reply} ${fmt(engagement.replies)}</span>
+      <span class="mtc-stat">${ICON.heart} ${fmt(engagement.likes)}</span>
+      <span class="mtc-stat">${ICON.retweet} ${fmt(engagement.retweets)}</span>
     </div>
   `;
-  return element;
+  return el;
 };
+
+// --- Popup: expanded view with Twitter icons ---
+const createPopupElement = (event) => {
+  const el = document.createElement("div");
+  el.className = "map-tweet-popup";
+  const engagement = event.engagement || {};
+  const severity = event.severity || "low";
+  const typeLabel = DISASTER_TYPES[event.disasterType]?.label || "Unknown";
+  const relevancy = event.relevancyScore ? Math.round(event.relevancyScore * 100) : "—";
+
+  el.innerHTML = `
+    <div class="mtp-header">
+      <div class="mtp-dot ${severity}"></div>
+      <div class="mtp-user">
+        <span class="mtp-name">${event.locationName || "Unknown"}${event.state ? ", " + event.state : ""}</span>
+        <span class="mtp-handle">${event.handle || "@unknown"}</span>
+      </div>
+      <span class="mtp-severity">${severity}</span>
+    </div>
+    <div class="mtp-text">${event.text}</div>
+    <div class="mtp-meta">
+      <span class="mtp-type">${typeLabel}</span>
+      <span class="mtp-separator">·</span>
+      <span class="mtp-time">${timeAgo(event.timestamp)}</span>
+      <span class="mtp-separator">·</span>
+      <span class="mtp-relevancy">${relevancy}%</span>
+    </div>
+    <div class="mtp-engagement">
+      <span>${ICON.reply} ${engagement.replies || 0}</span>
+      <span>${ICON.heart} ${engagement.likes || 0}</span>
+      <span>${ICON.retweet} ${engagement.retweets || 0}</span>
+      <span>${ICON.views} ${engagement.views || 0}</span>
+    </div>
+  `;
+  return el;
+};
+
+
 
 export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMode }) {
   const mapContainer = useRef(null);
@@ -64,7 +125,7 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
           return;
         }
 
-        if (providerRef.current) return; // Already initialized
+        if (providerRef.current) return;
 
         const maplibreProvider = new MaplibreProvider(
           maplibregl.Map,
@@ -87,6 +148,13 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
           token,
           maplibreProvider,
           {
+            pin: {
+              fadeout: {
+                scale: 0.25,
+                color: 0,
+              },
+              depth: 2,
+            },
             popup: { pan: true },
             events: {
               error: (message, err) => {
@@ -114,7 +182,6 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
 
         mapInstance.on("load", () => {
           if (cancelled) return;
-
           requestAnimationFrame(() => {
             mapInstance.resize();
           });
@@ -199,38 +266,27 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
               "interpolate",
               ["linear"],
               ["zoom"],
-              5,
-              1,
-              12,
-              3,
+              5, 1,
+              12, 3,
             ],
             "heatmap-color": [
               "interpolate",
               ["linear"],
               ["heatmap-density"],
-              0,
-              "rgba(0,0,0,0)",
-              0.1,
-              "hsla(210, 80%, 60%, 0.3)",
-              0.3,
-              "hsla(195, 70%, 50%, 0.5)",
-              0.5,
-              "hsla(45, 95%, 55%, 0.6)",
-              0.7,
-              "hsla(30, 90%, 55%, 0.7)",
-              1,
-              "hsla(0, 85%, 55%, 0.85)",
+              0, "rgba(0,0,0,0)",
+              0.1, "hsla(210, 80%, 60%, 0.3)",
+              0.3, "hsla(195, 70%, 50%, 0.5)",
+              0.5, "hsla(45, 95%, 55%, 0.6)",
+              0.7, "hsla(30, 90%, 55%, 0.7)",
+              1, "hsla(0, 85%, 55%, 0.85)",
             ],
             "heatmap-radius": [
               "interpolate",
               ["linear"],
               ["zoom"],
-              5,
-              30,
-              10,
-              50,
-              14,
-              80,
+              5, 30,
+              10, 50,
+              14, 80,
             ],
             "heatmap-opacity": 0.8,
           },
@@ -252,36 +308,49 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
         });
       }
 
-      // Update markers via MapManager
+      // Build markers with tweet card tooltips
       const managerMarkers = events
         .filter((e) => e.lat && e.lng)
-        .map((event) => {
+        .map((event, index) => {
+          const severity = event.severity || "low";
+          const pinColor = SEVERITY_COLORS[severity] || "#3b82f6";
+          const pinBg = SEVERITY_PIN_BG[severity] || "#3b82f666";
+
           return {
             id: event.id,
             rank: event.severityLevel || 1,
             lat: event.lat,
             lng: event.lng,
-            tooltip: {
-              element: createTooltipElement(
-                DISASTER_TYPES[event.disasterType]?.icon,
-                event.locationName,
-              ),
-              dimensions: { height: 24, width: 100, padding: 4 },
+            pin: {
+              element: createPinElement(severity),
+              dimensions: { radius: 10, stroke: 2 },
               style: {
-                background: "rgba(0,0,0,0.7)",
-                radius: 4,
+                stroke: "#ffffff",
+                background: pinBg,
               },
             },
-            pin: {
-              element: createPinElement(event.severity),
-              dimensions: { radius: 12, stroke: 0 },
-              style: { background: "transparent" },
+            tooltip: {
+              element: createTooltipElement(event),
+              dimensions: {
+                width: 210,
+                height: 130,
+                padding: 28,
+              },
+              style: {
+                background: "#0a0a0a",
+                radius: 10,
+                filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.4))",
+              },
             },
             popup: {
               element: createPopupElement(event),
-              dimensions: { height: 150, width: 300, padding: 0 },
+              dimensions: {
+                width: 300,
+                height: 240,
+                padding: 8,
+              },
               style: {
-                background: "transparent",
+                background: "#0a0a0a",
                 radius: 12,
               },
             },
@@ -300,7 +369,7 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
     return () => {
       map.off("style.load", updateMap);
     };
-  }, [events, tokenMissing, heatmapActive]);
+  }, [events, tokenMissing, heatmapActive, isDarkMode]);
 
   // Fly to selected event
   useEffect(() => {

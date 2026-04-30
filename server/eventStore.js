@@ -4,6 +4,7 @@ class EventStore {
   constructor(maxEvents = 500) {
     this.events = [];
     this.maxEvents = maxEvents;
+    this.noiseFiltered = 0; // Track filtered noise count
   }
 
   add(event) {
@@ -12,6 +13,10 @@ class EventStore {
       this.events = this.events.slice(-this.maxEvents);
     }
     return event;
+  }
+
+  incrementNoiseFiltered() {
+    this.noiseFiltered++;
   }
 
   getAll() {
@@ -26,6 +31,23 @@ class EventStore {
     return this.events.filter((e) => {
       const t = new Date(e.timestamp).getTime();
       return t >= startTime && t <= endTime;
+    });
+  }
+
+  /**
+   * Get recent events from a specific location (for corroboration)
+   * @param {string} locationName
+   * @param {number} windowMs - time window in ms (default 30 min)
+   */
+  getRecentByLocation(locationName, windowMs = 30 * 60 * 1000) {
+    if (!locationName) return [];
+    const now = Date.now();
+    const lowerLoc = locationName.toLowerCase();
+    return this.events.filter((e) => {
+      const age = now - new Date(e.timestamp).getTime();
+      if (age > windowMs) return false;
+      const eventLoc = (e.locationName || "").toLowerCase();
+      return eventLoc === lowerLoc || (e.locations || []).some((l) => l.toLowerCase() === lowerLoc);
     });
   }
 
@@ -71,6 +93,7 @@ class EventStore {
     return {
       total: this.events.length,
       last24h: last24h.length,
+      noiseFiltered: this.noiseFiltered,
       byType,
       byState,
       bySeverity,
@@ -133,3 +156,4 @@ class EventStore {
 }
 
 export { EventStore };
+

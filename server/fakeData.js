@@ -345,16 +345,236 @@ const TWEET_TEMPLATES = [
   },
 ];
 
+// ===== NOISE TWEETS — should be filtered by relevancy engine =====
+const NOISE_TEMPLATES = [
+  {
+    text: "Just watched a documentary about the 2004 Assam floods. Reminds me how vulnerable Brahmaputra basin is. Great cinematography! 🎬",
+    locations: ["assam", "brahmaputra"],
+    isNoise: true,
+  },
+  {
+    text: "lol my bathroom is flooded again 😂 feeling like Guwahati in monsoon season haha #FirstWorldProblems",
+    locations: ["guwahati"],
+    isNoise: true,
+  },
+  {
+    text: "Remember the Silchar floods of 2022? That was devastating. Pray it never happens again. Throwback to those dark days. 🙏",
+    locations: ["silchar"],
+    isNoise: true,
+  },
+  {
+    text: "What if a massive earthquake hits Shillong? Hypothetical scenario for my disaster management thesis. Need data points. #Research",
+    locations: ["shillong"],
+    isNoise: true,
+  },
+  {
+    text: "Follow me for daily weather updates from NE India! Subscribe to my newsletter. Link in bio. Use promo code MONSOON20 for discount 🌧️",
+    locations: [],
+    isNoise: true,
+  },
+  {
+    text: "Playing the new disaster simulation game set in Assam. The flood graphics are insane! 10/10 would recommend. #Gaming #FloodSimulator",
+    locations: ["assam"],
+    isNoise: true,
+  },
+  {
+    text: "Landslide wins! Best disaster movie of 2026. The scene in Kohima was wild lmao 🤣 #MovieReview",
+    locations: ["kohima"],
+    isNoise: true,
+  },
+  {
+    text: "FLOOD FLOOD FLOOD BUY NOW SALE SALE SALE MEGA DISCOUNT ON RAIN GEAR CLICK HERE!!!",
+    locations: [],
+    isNoise: true,
+  },
+  {
+    text: "Imagine if the Brahmaputra dried up. What would happen to Assam? Random thought at 3am. Can't sleep 🤔",
+    locations: ["brahmaputra", "assam"],
+    isNoise: true,
+  },
+  {
+    text: "Looking back at old photos from my trip to Cherrapunji. Beautiful place. The rain was something else! Nostalgia hits different. 📸",
+    locations: ["cherrapunji"],
+    isNoise: true,
+  },
+  {
+    text: "My cat knocked over the water bowl. Complete inundation of the kitchen. NDRF please send help lmao 😂🐱",
+    locations: [],
+    isNoise: true,
+  },
+  {
+    text: "Binge watching disaster documentaries. The Manipur episode was mid tbh. 3 stars out of 5. Not enough drama 🍿",
+    locations: ["manipur"],
+    isNoise: true,
+  },
+  {
+    text: "We had a flood in our school bathroom back in 2018. Nagaon kids will remember this lol 😂 #GoodOldDays",
+    locations: ["nagaon"],
+    isNoise: true,
+  },
+  {
+    text: "Win a free rain jacket! RT + Follow @fake_brand. Giveaway ends this monsoon. Contest open to all NE India residents! 🎁",
+    locations: [],
+    isNoise: true,
+  },
+  {
+    text: "If ever a cyclone hits Tripura, I wonder what would happen. Just thinking hypothetically for no reason. 💭",
+    locations: ["tripura"],
+    isNoise: true,
+  },
+  {
+    text: "Throwback to last year when Dimapur roads were waterlogged. Smh nothing changes. Same old story every year. 🙄",
+    locations: ["dimapur"],
+    isNoise: true,
+  },
+  {
+    text: "Just kidding about the flood warning earlier. Not really happening. False alarm sorry everyone! 😅",
+    locations: [],
+    isNoise: true,
+  },
+  {
+    text: "Anniversary of the 2019 Assam floods today. Never forget the devastation. RIP to all who lost their lives. 🕯️",
+    locations: ["assam"],
+    isNoise: true,
+  },
+  {
+    text: "Rating NE India states by flood readiness: Assam F, Meghalaya C, Sikkim B. Lol just my opinion don't @ me 😂",
+    locations: ["assam", "meghalaya", "sikkim"],
+    isNoise: true,
+  },
+  {
+    text: "Download my flood prediction app! Only ₹99/month. Check out my YouTube review. Subscribe for more disaster tech content 📱",
+    locations: [],
+    isNoise: true,
+  },
+];
+
+// Noise-specific handles (low credibility)
+const NOISE_HANDLES = [
+  "@random_user_420",
+  "@meme_lord_ne",
+  "@bot_farm_7",
+  "@spam_account_x",
+  "@movie_reviewer_ne",
+  "@throwback_daily",
+  "@promo_deals_india",
+  "@troll_master_69",
+];
+
+// Account metadata profiles
+const ACCOUNT_PROFILES = {
+  // Official — high trust
+  "@ndrf_updates": { isVerified: true, followerCount: 250000, accountAgeDays: 3650 },
+  "@assam_sdma": { isVerified: true, followerCount: 180000, accountAgeDays: 2920 },
+  "@imd_guwahati": { isVerified: true, followerCount: 320000, accountAgeDays: 4015 },
+  // News — verified
+  "@shillong_times": { isVerified: true, followerCount: 95000, accountAgeDays: 3285 },
+  "@nagaland_post": { isVerified: true, followerCount: 72000, accountAgeDays: 2555 },
+  "@ne_india_news": { isVerified: true, followerCount: 110000, accountAgeDays: 1825 },
+  "@assam_updates": { isVerified: false, followerCount: 45000, accountAgeDays: 1460 },
+  "@manipur_alert": { isVerified: false, followerCount: 28000, accountAgeDays: 1095 },
+  "@mizoram_today": { isVerified: false, followerCount: 22000, accountAgeDays: 985 },
+  "@tripura_news": { isVerified: false, followerCount: 18000, accountAgeDays: 875 },
+  "@arunachal_voice": { isVerified: false, followerCount: 15000, accountAgeDays: 730 },
+  "@sikkim_express": { isVerified: false, followerCount: 25000, accountAgeDays: 1100 },
+  // Relief orgs
+  "@redcross_ne": { isVerified: true, followerCount: 65000, accountAgeDays: 2190 },
+  "@unicef_india": { isVerified: true, followerCount: 890000, accountAgeDays: 5110 },
+  "@gaborone_relief": { isVerified: false, followerCount: 8500, accountAgeDays: 620 },
+  "@relief_NE": { isVerified: false, followerCount: 12000, accountAgeDays: 540 },
+  "@help_assam": { isVerified: false, followerCount: 7200, accountAgeDays: 410 },
+  // Monitoring
+  "@flood_watch_assam": { isVerified: false, followerCount: 31000, accountAgeDays: 1460 },
+  "@brahmaputra_watch": { isVerified: false, followerCount: 19000, accountAgeDays: 950 },
+  "@weatherNE": { isVerified: false, followerCount: 41000, accountAgeDays: 1280 },
+  "@disaster_india": { isVerified: true, followerCount: 155000, accountAgeDays: 2555 },
+  // Journalists
+  "@local_journo_ne": { isVerified: false, followerCount: 5200, accountAgeDays: 780 },
+  "@village_voice_assam": { isVerified: false, followerCount: 3100, accountAgeDays: 365 },
+  // Citizens
+  "@citizen_reporter1": { isVerified: false, followerCount: 820, accountAgeDays: 210 },
+  // Noise handles — low trust
+  "@random_user_420": { isVerified: false, followerCount: 120, accountAgeDays: 15 },
+  "@meme_lord_ne": { isVerified: false, followerCount: 3500, accountAgeDays: 90 },
+  "@bot_farm_7": { isVerified: false, followerCount: 45, accountAgeDays: 5 },
+  "@spam_account_x": { isVerified: false, followerCount: 8, accountAgeDays: 2 },
+  "@movie_reviewer_ne": { isVerified: false, followerCount: 2200, accountAgeDays: 340 },
+  "@throwback_daily": { isVerified: false, followerCount: 6800, accountAgeDays: 450 },
+  "@promo_deals_india": { isVerified: false, followerCount: 15000, accountAgeDays: 60 },
+  "@troll_master_69": { isVerified: false, followerCount: 4100, accountAgeDays: 75 },
+};
+
+// Generate realistic engagement metrics based on severity & source
+function generateEngagement(handle, isNoise = false) {
+  const profile = ACCOUNT_PROFILES[handle];
+  const followers = profile?.followerCount || 100;
+
+  if (isNoise) {
+    // Noise tweets get low or spammy engagement
+    return {
+      likes: Math.floor(Math.random() * 15),
+      retweets: Math.floor(Math.random() * 5),
+      replies: Math.floor(Math.random() * 8),
+      views: Math.floor(Math.random() * 500),
+    };
+  }
+
+  // Real tweets: engagement scales with follower count
+  const baseMultiplier = Math.log10(followers + 1) / 5;
+  const viralChance = Math.random();
+
+  let likes = Math.floor(followers * baseMultiplier * (0.02 + Math.random() * 0.08));
+  let retweets = Math.floor(likes * (0.2 + Math.random() * 0.4));
+  let replies = Math.floor(likes * (0.05 + Math.random() * 0.15));
+  let views = Math.floor(likes * (5 + Math.random() * 15));
+
+  // Occasional viral spike
+  if (viralChance > 0.85) {
+    const multiplier = 3 + Math.random() * 7;
+    likes = Math.floor(likes * multiplier);
+    retweets = Math.floor(retweets * multiplier);
+    replies = Math.floor(replies * multiplier * 0.5);
+    views = Math.floor(views * multiplier);
+  }
+
+  return { likes, retweets, replies, views };
+}
+
 let tweetIndex = 0;
+let noiseCounter = 0;
 
 function generateTweet() {
+  // Mix in noise tweets: roughly 1 in 5 tweets is noise
+  const isNoiseTweet = Math.random() < 0.2;
+
+  if (isNoiseTweet) {
+    const template = NOISE_TEMPLATES[noiseCounter % NOISE_TEMPLATES.length];
+    noiseCounter++;
+
+    const handle = NOISE_HANDLES[Math.floor(Math.random() * NOISE_HANDLES.length)];
+    const source = SOURCES[Math.floor(Math.random() * SOURCES.length)];
+    const timestamp = new Date(
+      Date.now() - Math.random() * 5 * 60 * 1000,
+    ).toISOString();
+
+    return {
+      id: `tw_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+      text: template.text,
+      handle,
+      source,
+      timestamp,
+      hintLocations: template.locations,
+      isNoise: true,
+      engagement: generateEngagement(handle, true),
+      accountMeta: ACCOUNT_PROFILES[handle] || { isVerified: false, followerCount: 50, accountAgeDays: 10 },
+    };
+  }
+
   const template = TWEET_TEMPLATES[tweetIndex % TWEET_TEMPLATES.length];
   tweetIndex++;
 
   const handle = HANDLES[Math.floor(Math.random() * HANDLES.length)];
   const source = SOURCES[Math.floor(Math.random() * SOURCES.length)];
-
-  // Slightly randomize timestamp (within last few minutes)
   const timestamp = new Date(
     Date.now() - Math.random() * 5 * 60 * 1000,
   ).toISOString();
@@ -366,6 +586,9 @@ function generateTweet() {
     source,
     timestamp,
     hintLocations: template.locations,
+    isNoise: false,
+    engagement: generateEngagement(handle, false),
+    accountMeta: ACCOUNT_PROFILES[handle] || { isVerified: false, followerCount: 1000, accountAgeDays: 365 },
   };
 }
 
@@ -379,11 +602,14 @@ function generateHistoricalBatch(count = 50, hoursBack = 48) {
   const now = Date.now();
 
   for (let i = 0; i < count; i++) {
-    const template = TWEET_TEMPLATES[i % TWEET_TEMPLATES.length];
-    const handle = HANDLES[Math.floor(Math.random() * HANDLES.length)];
+    // 15% noise in historical data
+    const isNoise = Math.random() < 0.15;
+    const templatePool = isNoise ? NOISE_TEMPLATES : TWEET_TEMPLATES;
+    const template = templatePool[i % templatePool.length];
+    const handlePool = isNoise ? NOISE_HANDLES : HANDLES;
+    const handle = handlePool[Math.floor(Math.random() * handlePool.length)];
     const source = SOURCES[Math.floor(Math.random() * SOURCES.length)];
 
-    // Distribute across time range, with more recent tweets being more frequent
     const progress = i / count;
     const hoursAgo = hoursBack * (1 - Math.pow(progress, 0.7));
     const timestamp = new Date(now - hoursAgo * 3600 * 1000).toISOString();
@@ -395,10 +621,14 @@ function generateHistoricalBatch(count = 50, hoursBack = 48) {
       source,
       timestamp,
       hintLocations: template.locations,
+      isNoise: isNoise,
+      engagement: generateEngagement(handle, isNoise),
+      accountMeta: ACCOUNT_PROFILES[handle] || { isVerified: false, followerCount: 500, accountAgeDays: 180 },
     });
   }
 
   return tweets.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
-export { generateTweet, generateHistoricalBatch, TWEET_TEMPLATES };
+export { generateTweet, generateHistoricalBatch, TWEET_TEMPLATES, NOISE_TEMPLATES, ACCOUNT_PROFILES };
+
