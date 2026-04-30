@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import LiveMap from './components/LiveMap';
 import LiveFeed from './components/LiveFeed';
 import AlertBanner from './components/AlertBanner';
+import TimelinePanel from './components/TimelinePanel';
 import {
   fetchEvents,
   createEventStream,
@@ -18,7 +19,10 @@ export default function App() {
   const [speed, setSpeed] = useState(8000);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [criticalAlert, setCriticalAlert] = useState(null);
+  const [timelineActive, setTimelineActive] = useState(false);
+  const [timeRange, setTimeRange] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [feedOpen, setFeedOpen] = useState(false);
 
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -49,8 +53,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    setDisplayEvents(events);
-  }, [events]);
+    if (!timeRange) {
+      setDisplayEvents(events);
+    }
+  }, [events, timeRange]);
 
   const handleToggleLive = async () => {
     if (isLive) {
@@ -69,6 +75,23 @@ export default function App() {
     }
   };
 
+  const handleTimeRangeChange = useCallback((start, end) => {
+    setTimeRange({ start, end });
+    const filtered = events.filter(e => {
+      const t = new Date(e.timestamp).getTime();
+      return t >= start && t <= end;
+    });
+    setDisplayEvents(filtered);
+  }, [events]);
+
+  const handleToggleTimeline = () => {
+    setTimelineActive(!timelineActive);
+    if (timelineActive) {
+      setTimeRange(null);
+      setDisplayEvents(events);
+    }
+  };
+
   return (
     <div id="app">
       <LiveMap
@@ -78,13 +101,16 @@ export default function App() {
         isDarkMode={isDarkMode}
       />
 
-      <LiveFeed
-        events={displayEvents}
-        onSelectEvent={(event) => setSelectedEvent(event)}
-      />
+      {feedOpen && (
+        <LiveFeed
+          events={displayEvents}
+          onSelectEvent={(event) => setSelectedEvent(event)}
+          onClose={() => setFeedOpen(false)}
+        />
+      )}
 
-      {/* Floating bottom control bar */}
-      <div className="control-bar">
+      {/* Floating bottom control bar — lifts above timeline */}
+      <div className={`control-bar ${timelineActive ? 'control-bar-lifted' : ''}`}>
         <div className="control-bar-inner">
           <button
             className={`cb-btn ${isLive ? 'cb-active' : ''}`}
@@ -98,16 +124,18 @@ export default function App() {
           >
             Heatmap
           </button>
-          <select
-            className="cb-select"
-            value={speed}
-            onChange={(e) => handleSpeedChange(Number(e.target.value))}
+          <button
+            className={`cb-btn ${feedOpen ? 'cb-active' : ''}`}
+            onClick={() => setFeedOpen(!feedOpen)}
           >
-            <option value={3000}>Fast</option>
-            <option value={5000}>Medium</option>
-            <option value={8000}>Normal</option>
-            <option value={15000}>Slow</option>
-          </select>
+            Feed
+          </button>
+          <button
+            className={`cb-btn ${timelineActive ? 'cb-active' : ''}`}
+            onClick={handleToggleTimeline}
+          >
+            Timeline
+          </button>
         </div>
       </div>
 
@@ -119,6 +147,19 @@ export default function App() {
             setSelectedEvent(event);
             setCriticalAlert(null);
           }}
+        />
+      )}
+
+      {timelineActive && (
+        <TimelinePanel
+          events={events}
+          feedOpen={feedOpen}
+          onClose={() => {
+            setTimelineActive(false);
+            setTimeRange(null);
+            setDisplayEvents(events);
+          }}
+          onTimeRangeChange={handleTimeRangeChange}
         />
       )}
     </div>

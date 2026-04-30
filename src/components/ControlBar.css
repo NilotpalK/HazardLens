@@ -4,7 +4,12 @@
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
+  z-index: 200;
+  transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.control-bar.control-bar-lifted {
+  bottom: 100px;
 }
 
 .control-bar-inner {
@@ -70,4 +75,48 @@
 .cb-select option {
   background: #171717;
   color: #ededed;
+}
+
+/* Feed toggle FAB — top right */
+.feed-fab {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(23, 23, 23, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #888;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  transition: all 0.15s ease;
+}
+
+.feed-fab:hover {
+  color: #ededed;
+  background: rgba(30, 30, 30, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.feed-fab.feed-fab-active {
+  color: #fafafa;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.feed-fab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
 }

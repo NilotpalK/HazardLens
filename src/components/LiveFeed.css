@@ -1,11 +1,11 @@
-/* Live Feed — glassmorphism sidebar */
+/* Live Feed — glassmorphism sidebar panel */
 .live-feed {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   width: 340px;
-  z-index: 50;
+  z-index: 150;
   display: flex;
   flex-direction: column;
   background: rgba(10, 10, 10, 0.6);
@@ -14,37 +14,25 @@
   border-left: 1px solid rgba(255, 255, 255, 0.06);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: feedSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.live-feed.feed-collapsed {
-  transform: translateX(calc(100% - 40px));
+@keyframes feedSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
-/* Toggle button */
-.feed-toggle {
+/* Header */
+.feed-header {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 14px 16px;
-  background: none;
-  border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  cursor: pointer;
-  color: #888;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  transition: color 0.15s ease;
   flex-shrink: 0;
 }
 
-.feed-toggle:hover {
-  color: #ededed;
-}
-
-.feed-toggle-dot {
+.feed-header-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -52,21 +40,36 @@
   box-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
 }
 
-.feed-toggle-label {
-  color: #fafafa;
+.feed-header-title {
+  font-size: 13px;
   font-weight: 500;
+  color: #fafafa;
+  letter-spacing: -0.01em;
 }
 
-.feed-toggle-count {
+.feed-header-count {
   color: #555;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
-.feed-toggle-arrow {
+.feed-header-close {
   margin-left: auto;
-  font-size: 16px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
   color: #555;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.feed-header-close:hover {
+  color: #ededed;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 /* List */
