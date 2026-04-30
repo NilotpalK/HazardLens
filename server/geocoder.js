@@ -28,6 +28,8 @@ const LOCATIONS = {
   kokrajhar: { lat: 26.4006, lng: 90.2716, state: "Assam", type: "district" },
   majuli: { lat: 26.95, lng: 94.17, state: "Assam", type: "district" },
   baksa: { lat: 26.7, lng: 91.25, state: "Assam", type: "district" },
+  jagiroad: { lat: 26.11, lng: 92.22, state: "Assam", type: "town" },
+  hojai: { lat: 26.0, lng: 92.86, state: "Assam", type: "district" },
 
   // ============= MEGHALAYA =============
   shillong: { lat: 25.5788, lng: 91.8933, state: "Meghalaya", type: "city" },

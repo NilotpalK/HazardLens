@@ -3,7 +3,8 @@
 import express from "express";
 import cors from "cors";
 import { processText } from "./nlpPipeline.js";
-import { geocodeBest, jitter } from "./geocoder.js";
+import { translateText } from "./translator.js";
+import { geocodeBest, jitter, LOCATIONS } from "./geocoder.js";
 import { generateTweet, generateHistoricalBatch } from "./fakeData.js";
 import { EventStore } from "./eventStore.js";
 
@@ -38,22 +39,29 @@ app.get("/api/events/stream", (req, res) => {
 });
 
 // --- Process a raw tweet into a structured event ---
-function processTweet(tweet) {
+async function processTweet(tweet) {
   // Get corroboration data from store (recent events from same location)
   const hintLoc = tweet.hintLocations?.[0] || "";
   const recentLocationEvents = store.getRecentByLocation(hintLoc);
 
-  const nlp = processText(tweet.text, {
+  // Translate text for NLP
+  const { translatedText, detectedLanguage } = await translateText(tweet.text);
+  const isTranslated =
+    detectedLanguage !== "en" &&
+    translatedText.toLowerCase() !== tweet.text.toLowerCase();
+
+  const nlp = processText(translatedText, {
     engagement: tweet.engagement || {},
     handle: tweet.handle || "",
     accountMeta: tweet.accountMeta || {},
     recentLocationEvents,
+    hintLocations: tweet.hintLocations || [],
   });
 
   if (!nlp.isDisaster) return null;
 
-  // Check relevancy — filter noise
-  if (!nlp.isRelevant) {
+  // Check relevancy — filter noise (skip for manual citizen reports)
+  if (!nlp.isRelevant && tweet.source !== "manual") {
     store.incrementNoiseFiltered();
     console.log(
       `🚫 Filtered noise (relevancy: ${nlp.relevancyScore}): "${tweet.text.substring(0, 60)}..."`,
@@ -68,7 +76,8 @@ function processTweet(tweet) {
 
   return {
     id: tweet.id,
-    text: tweet.text,
+    text: tweet.text, // original text
+    translatedText: isTranslated ? translatedText : null, // keep translation if not English
     handle: tweet.handle,
     source: tweet.source,
     timestamp: tweet.timestamp,
@@ -130,9 +139,20 @@ app.get("/api/heatmap", (req, res) => {
   );
 });
 
+app.get("/api/locations", (req, res) => {
+  res.json(
+    Object.keys(LOCATIONS).map((loc) =>
+      loc
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" "),
+    ),
+  );
+});
+
 // --- Custom tweet submission ---
 app.post("/api/tweet", async (req, res) => {
-  const { text, handle } = req.body;
+  const { text, handle, location } = req.body;
   if (!text || typeof text !== "string" || text.trim().length === 0) {
     return res.status(400).json({ error: "text is required" });
   }
@@ -143,20 +163,22 @@ app.post("/api/tweet", async (req, res) => {
     handle: handle || "@custom_user",
     source: "manual",
     timestamp: new Date().toISOString(),
-    hintLocations: [],
+    hintLocations: location ? [location.toLowerCase()] : [],
     engagement: { likes: 0, retweets: 0, replies: 0, views: 0 },
     accountMeta: { isVerified: false, followerCount: 100, accountAgeDays: 365 },
   };
 
-  const event = processTweet(tweet);
+  const event = await processTweet(tweet);
 
   if (!event) {
     // Still return the NLP analysis even if filtered
-    const nlp = processText(text.trim(), {
+    const { translatedText } = await translateText(text.trim());
+    const nlp = processText(translatedText, {
       engagement: tweet.engagement,
       handle: tweet.handle,
       accountMeta: tweet.accountMeta,
       recentLocationEvents: [],
+      hintLocations: tweet.hintLocations || [],
     });
     return res.json({
       accepted: false,
@@ -177,12 +199,12 @@ app.post("/api/tweet", async (req, res) => {
   });
 });
 
-app.post("/api/simulate", (req, res) => {
+app.post("/api/simulate", async (req, res) => {
   const count = Math.min(parseInt(req.body?.count) || 10, 50);
   const events = [];
   for (let i = 0; i < count; i++) {
     const tweet = generateTweet();
-    const event = processTweet(tweet);
+    const event = await processTweet(tweet);
     if (event) {
       store.add(event);
       broadcastEvent(event);
@@ -193,11 +215,11 @@ app.post("/api/simulate", (req, res) => {
 });
 
 // --- Seed historical data on startup ---
-function seedHistoricalData() {
+async function seedHistoricalData() {
   const historicalTweets = generateHistoricalBatch(80, 48);
   let seeded = 0;
   for (const tweet of historicalTweets) {
-    const event = processTweet(tweet);
+    const event = await processTweet(tweet);
     if (event) {
       store.add(event);
       seeded++;
@@ -210,11 +232,11 @@ function seedHistoricalData() {
 let simulationInterval = null;
 let simulationSpeed = 8000; // ms between tweets
 
-function startSimulation() {
+async function startSimulation() {
   if (simulationInterval) return;
-  simulationInterval = setInterval(() => {
+  simulationInterval = setInterval(async () => {
     const tweet = generateTweet();
-    const event = processTweet(tweet);
+    const event = await processTweet(tweet);
     if (event) {
       store.add(event);
       broadcastEvent(event);

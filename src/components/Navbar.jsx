@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './Navbar.css';
 
-export default function Navbar({ isLive, onToggleLive, onToggleHeatmap, heatmapActive, onSpeedChange, speed, onToggleTimeline, timelineActive, isDarkMode, onToggleTheme }) {
+export default function Navbar({ isLive, onToggleLive, onToggleHeatmap, heatmapActive, onSpeedChange, speed, onToggleTimeline, timelineActive, isDarkMode, onToggleTheme, onOpenAddModal }) {
   return (
     <nav className="navbar" id="navbar">
       <div className="navbar-brand">
@@ -37,6 +37,11 @@ export default function Navbar({ isLive, onToggleLive, onToggleHeatmap, heatmapA
           <button className="nav-btn" onClick={onToggleTheme} id="btn-toggle-theme">
             <span className="icon">{isDarkMode ? '☀️' : '🌙'}</span>
             {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
+
+          <button className="nav-btn" onClick={onOpenAddModal} id="btn-add-tweet" style={{ background: 'var(--accent)', color: 'white', border: 'none' }}>
+            <span className="icon">➕</span>
+            Report
           </button>
 
           <select className="speed-select" value={speed} onChange={(e) => onSpeedChange(Number(e.target.value))} id="speed-select">

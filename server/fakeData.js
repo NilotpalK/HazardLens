@@ -464,44 +464,164 @@ const NOISE_HANDLES = [
 // Account metadata profiles
 const ACCOUNT_PROFILES = {
   // Official — high trust
-  "@ndrf_updates": { isVerified: true, followerCount: 250000, accountAgeDays: 3650 },
-  "@assam_sdma": { isVerified: true, followerCount: 180000, accountAgeDays: 2920 },
-  "@imd_guwahati": { isVerified: true, followerCount: 320000, accountAgeDays: 4015 },
+  "@ndrf_updates": {
+    isVerified: true,
+    followerCount: 250000,
+    accountAgeDays: 3650,
+  },
+  "@assam_sdma": {
+    isVerified: true,
+    followerCount: 180000,
+    accountAgeDays: 2920,
+  },
+  "@imd_guwahati": {
+    isVerified: true,
+    followerCount: 320000,
+    accountAgeDays: 4015,
+  },
   // News — verified
-  "@shillong_times": { isVerified: true, followerCount: 95000, accountAgeDays: 3285 },
-  "@nagaland_post": { isVerified: true, followerCount: 72000, accountAgeDays: 2555 },
-  "@ne_india_news": { isVerified: true, followerCount: 110000, accountAgeDays: 1825 },
-  "@assam_updates": { isVerified: false, followerCount: 45000, accountAgeDays: 1460 },
-  "@manipur_alert": { isVerified: false, followerCount: 28000, accountAgeDays: 1095 },
-  "@mizoram_today": { isVerified: false, followerCount: 22000, accountAgeDays: 985 },
-  "@tripura_news": { isVerified: false, followerCount: 18000, accountAgeDays: 875 },
-  "@arunachal_voice": { isVerified: false, followerCount: 15000, accountAgeDays: 730 },
-  "@sikkim_express": { isVerified: false, followerCount: 25000, accountAgeDays: 1100 },
+  "@shillong_times": {
+    isVerified: true,
+    followerCount: 95000,
+    accountAgeDays: 3285,
+  },
+  "@nagaland_post": {
+    isVerified: true,
+    followerCount: 72000,
+    accountAgeDays: 2555,
+  },
+  "@ne_india_news": {
+    isVerified: true,
+    followerCount: 110000,
+    accountAgeDays: 1825,
+  },
+  "@assam_updates": {
+    isVerified: false,
+    followerCount: 45000,
+    accountAgeDays: 1460,
+  },
+  "@manipur_alert": {
+    isVerified: false,
+    followerCount: 28000,
+    accountAgeDays: 1095,
+  },
+  "@mizoram_today": {
+    isVerified: false,
+    followerCount: 22000,
+    accountAgeDays: 985,
+  },
+  "@tripura_news": {
+    isVerified: false,
+    followerCount: 18000,
+    accountAgeDays: 875,
+  },
+  "@arunachal_voice": {
+    isVerified: false,
+    followerCount: 15000,
+    accountAgeDays: 730,
+  },
+  "@sikkim_express": {
+    isVerified: false,
+    followerCount: 25000,
+    accountAgeDays: 1100,
+  },
   // Relief orgs
-  "@redcross_ne": { isVerified: true, followerCount: 65000, accountAgeDays: 2190 },
-  "@unicef_india": { isVerified: true, followerCount: 890000, accountAgeDays: 5110 },
-  "@gaborone_relief": { isVerified: false, followerCount: 8500, accountAgeDays: 620 },
-  "@relief_NE": { isVerified: false, followerCount: 12000, accountAgeDays: 540 },
-  "@help_assam": { isVerified: false, followerCount: 7200, accountAgeDays: 410 },
+  "@redcross_ne": {
+    isVerified: true,
+    followerCount: 65000,
+    accountAgeDays: 2190,
+  },
+  "@unicef_india": {
+    isVerified: true,
+    followerCount: 890000,
+    accountAgeDays: 5110,
+  },
+  "@gaborone_relief": {
+    isVerified: false,
+    followerCount: 8500,
+    accountAgeDays: 620,
+  },
+  "@relief_NE": {
+    isVerified: false,
+    followerCount: 12000,
+    accountAgeDays: 540,
+  },
+  "@help_assam": {
+    isVerified: false,
+    followerCount: 7200,
+    accountAgeDays: 410,
+  },
   // Monitoring
-  "@flood_watch_assam": { isVerified: false, followerCount: 31000, accountAgeDays: 1460 },
-  "@brahmaputra_watch": { isVerified: false, followerCount: 19000, accountAgeDays: 950 },
-  "@weatherNE": { isVerified: false, followerCount: 41000, accountAgeDays: 1280 },
-  "@disaster_india": { isVerified: true, followerCount: 155000, accountAgeDays: 2555 },
+  "@flood_watch_assam": {
+    isVerified: false,
+    followerCount: 31000,
+    accountAgeDays: 1460,
+  },
+  "@brahmaputra_watch": {
+    isVerified: false,
+    followerCount: 19000,
+    accountAgeDays: 950,
+  },
+  "@weatherNE": {
+    isVerified: false,
+    followerCount: 41000,
+    accountAgeDays: 1280,
+  },
+  "@disaster_india": {
+    isVerified: true,
+    followerCount: 155000,
+    accountAgeDays: 2555,
+  },
   // Journalists
-  "@local_journo_ne": { isVerified: false, followerCount: 5200, accountAgeDays: 780 },
-  "@village_voice_assam": { isVerified: false, followerCount: 3100, accountAgeDays: 365 },
+  "@local_journo_ne": {
+    isVerified: false,
+    followerCount: 5200,
+    accountAgeDays: 780,
+  },
+  "@village_voice_assam": {
+    isVerified: false,
+    followerCount: 3100,
+    accountAgeDays: 365,
+  },
   // Citizens
-  "@citizen_reporter1": { isVerified: false, followerCount: 820, accountAgeDays: 210 },
+  "@citizen_reporter1": {
+    isVerified: false,
+    followerCount: 820,
+    accountAgeDays: 210,
+  },
   // Noise handles — low trust
-  "@random_user_420": { isVerified: false, followerCount: 120, accountAgeDays: 15 },
-  "@meme_lord_ne": { isVerified: false, followerCount: 3500, accountAgeDays: 90 },
+  "@random_user_420": {
+    isVerified: false,
+    followerCount: 120,
+    accountAgeDays: 15,
+  },
+  "@meme_lord_ne": {
+    isVerified: false,
+    followerCount: 3500,
+    accountAgeDays: 90,
+  },
   "@bot_farm_7": { isVerified: false, followerCount: 45, accountAgeDays: 5 },
   "@spam_account_x": { isVerified: false, followerCount: 8, accountAgeDays: 2 },
-  "@movie_reviewer_ne": { isVerified: false, followerCount: 2200, accountAgeDays: 340 },
-  "@throwback_daily": { isVerified: false, followerCount: 6800, accountAgeDays: 450 },
-  "@promo_deals_india": { isVerified: false, followerCount: 15000, accountAgeDays: 60 },
-  "@troll_master_69": { isVerified: false, followerCount: 4100, accountAgeDays: 75 },
+  "@movie_reviewer_ne": {
+    isVerified: false,
+    followerCount: 2200,
+    accountAgeDays: 340,
+  },
+  "@throwback_daily": {
+    isVerified: false,
+    followerCount: 6800,
+    accountAgeDays: 450,
+  },
+  "@promo_deals_india": {
+    isVerified: false,
+    followerCount: 15000,
+    accountAgeDays: 60,
+  },
+  "@troll_master_69": {
+    isVerified: false,
+    followerCount: 4100,
+    accountAgeDays: 75,
+  },
 };
 
 // Generate realistic engagement metrics based on severity & source
@@ -523,7 +643,9 @@ function generateEngagement(handle, isNoise = false) {
   const baseMultiplier = Math.log10(followers + 1) / 5;
   const viralChance = Math.random();
 
-  let likes = Math.floor(followers * baseMultiplier * (0.02 + Math.random() * 0.08));
+  let likes = Math.floor(
+    followers * baseMultiplier * (0.02 + Math.random() * 0.08),
+  );
   let retweets = Math.floor(likes * (0.2 + Math.random() * 0.4));
   let replies = Math.floor(likes * (0.05 + Math.random() * 0.15));
   let views = Math.floor(likes * (5 + Math.random() * 15));
@@ -551,7 +673,8 @@ function generateTweet() {
     const template = NOISE_TEMPLATES[noiseCounter % NOISE_TEMPLATES.length];
     noiseCounter++;
 
-    const handle = NOISE_HANDLES[Math.floor(Math.random() * NOISE_HANDLES.length)];
+    const handle =
+      NOISE_HANDLES[Math.floor(Math.random() * NOISE_HANDLES.length)];
     const source = SOURCES[Math.floor(Math.random() * SOURCES.length)];
     const timestamp = new Date(
       Date.now() - Math.random() * 5 * 60 * 1000,
@@ -566,7 +689,11 @@ function generateTweet() {
       hintLocations: template.locations,
       isNoise: true,
       engagement: generateEngagement(handle, true),
-      accountMeta: ACCOUNT_PROFILES[handle] || { isVerified: false, followerCount: 50, accountAgeDays: 10 },
+      accountMeta: ACCOUNT_PROFILES[handle] || {
+        isVerified: false,
+        followerCount: 50,
+        accountAgeDays: 10,
+      },
     };
   }
 
@@ -588,7 +715,11 @@ function generateTweet() {
     hintLocations: template.locations,
     isNoise: false,
     engagement: generateEngagement(handle, false),
-    accountMeta: ACCOUNT_PROFILES[handle] || { isVerified: false, followerCount: 1000, accountAgeDays: 365 },
+    accountMeta: ACCOUNT_PROFILES[handle] || {
+      isVerified: false,
+      followerCount: 1000,
+      accountAgeDays: 365,
+    },
   };
 }
 
@@ -623,12 +754,21 @@ function generateHistoricalBatch(count = 50, hoursBack = 48) {
       hintLocations: template.locations,
       isNoise: isNoise,
       engagement: generateEngagement(handle, isNoise),
-      accountMeta: ACCOUNT_PROFILES[handle] || { isVerified: false, followerCount: 500, accountAgeDays: 180 },
+      accountMeta: ACCOUNT_PROFILES[handle] || {
+        isVerified: false,
+        followerCount: 500,
+        accountAgeDays: 180,
+      },
     });
   }
 
   return tweets.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
-export { generateTweet, generateHistoricalBatch, TWEET_TEMPLATES, NOISE_TEMPLATES, ACCOUNT_PROFILES };
-
+export {
+  generateTweet,
+  generateHistoricalBatch,
+  TWEET_TEMPLATES,
+  NOISE_TEMPLATES,
+  ACCOUNT_PROFILES,
+};

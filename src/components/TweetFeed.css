@@ -146,3 +146,20 @@
   border-radius: 100px;
   text-transform: capitalize;
 }
+
+.translate-btn {
+  font-size: 9px;
+  color: var(--accent);
+  background: hsla(200, 95%, 55%, 0.1);
+  border: 1px solid var(--accent);
+  padding: 1px 6px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.translate-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+

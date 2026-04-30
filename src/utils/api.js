@@ -52,6 +52,20 @@ export async function simulateBatch(count = 10) {
   return res.json();
 }
 
+export async function postCustomTweet(text, handle, location) {
+  const res = await fetch(`${API_BASE}/tweet`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, handle, location }),
+  });
+  return res.json();
+}
+
+export async function fetchLocations() {
+  const res = await fetch(`${API_BASE}/locations`);
+  return res.json();
+}
+
 export function createEventStream(onEvent) {
   const es = new EventSource(`${API_BASE}/events/stream`);
   es.onmessage = (e) => {
