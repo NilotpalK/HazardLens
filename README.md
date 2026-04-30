@@ -1,126 +1,105 @@
-# 🔴 HazardLens — Real-Time Disaster Intelligence for North-East India
+# HazardLens
 
-> **NER Hackathon Project** — Uses social media signals + NLP to detect disasters early and visualize them on a live map.
+Real-time disaster detection for North-East India — built on social media signals and a lightweight NLP pipeline.
 
-![HazardLens](https://img.shields.io/badge/Status-Live-brightgreen) ![React](https://img.shields.io/badge/React-19-blue) ![MapLibre](https://img.shields.io/badge/MapLibre_GL-Free-orange) ![Node](https://img.shields.io/badge/Node.js-Express-green)
-
----
-
-## 🎯 The Problem
-
-North-East India faces **frequent floods** (Brahmaputra basin), **landslides** in hilly regions, and **heavy monsoon rainfall**. Disaster response is slow because information reaches authorities late.
-
-**Key Insight:** During disasters, people post on social media _immediately_ — but this data is unstructured and ignored by official response systems.
-
-## 💡 Our Solution
-
-HazardLens monitors social media signals in real-time, performs **Named Entity Recognition (NER)** to extract disaster information, and visualizes detected events on a **live interactive map** with hotspot tracking.
-
-```
-Social Media → NER Pipeline → Geocoding → Live Map + Alerts
-```
+NE India deals with frequent floods, landslides, and heavy monsoon events year-round. The problem isn't that disasters are unpredictable — it's that information reaches the people who need it too slowly. When something goes wrong, locals post about it immediately. HazardLens taps into that signal, extracts what matters, and puts it on a live map.
 
 ---
 
-## ✨ Features
+## What it does
 
-| Feature                    | Description                                                        |
-| -------------------------- | ------------------------------------------------------------------ |
-| 🗺️ **Live Map**            | MapLibre GL dark map with severity-colored markers across NE India |
-| 🔥 **Heatmap Hotspots**    | Density overlay showing disaster spread patterns                   |
-| 📡 **Real-Time Feed**      | SSE-powered live tweet stream with auto-scroll                     |
-| 🧠 **NER Pipeline**        | Extracts LOCATION, DISASTER_TYPE, SEVERITY, AFFECTED_COUNT         |
-| 📊 **Timeline Trends**     | Recharts area chart with playback showing spread over time         |
-| 🚨 **Push Notifications**  | Browser alerts for critical-severity disasters                     |
-| 🎮 **Simulation Controls** | Play/pause, speed control for demo purposes                        |
-| 🔍 **Filter by Type**      | Flood, Landslide, Heavy Rain, Infrastructure                       |
+HazardLens monitors a social media feed, runs each post through a Named Entity Recognition pipeline, and plots detected events on an interactive map in real time. You get severity-colored markers across all 8 NE states, a heatmap showing where things are clustering, and a timeline that lets you replay how a situation spread over time.
+
+Social media post → NER pipeline → geocoding → live map + alerts
+
+The NER engine is rule-based and tuned specifically for disaster contexts. It extracts four things from each post: the location, the disaster type, the severity, and any affected counts mentioned. No external NLP API needed.
 
 ---
 
-## 🚀 Quick Start
+## Getting started
 
-```bash
-# Clone
+bash
 git clone https://github.com/NilotpalK/HazardLens.git
 cd HazardLens
-
-# Install dependencies
 npm install
 
-# Terminal 1 — Start backend
+# Terminal 1
+
 npm run server
 
-# Terminal 2 — Start frontend
-npm run dev
-```
+# Terminal 2
 
-Open **http://localhost:5173** 🎉
+npm run dev
+
+Open http://localhost:5173.
 
 ---
 
-## 🏗️ Architecture
+## Features
+
+- _Live map_ — MapLibre GL dark map with severity-colored markers across NE India
+- _Heatmap_ — density overlay that shows where events are concentrating
+- _Tweet feed_ — SSE-powered stream that auto-scrolls as new events come in; click any tweet to fly to its location on the map
+- _Timeline_ — area chart with playback controls so you can watch a situation unfold over time
+- _Filters_ — toggle between flood, landslide, heavy rain, and infrastructure events
+- _Push notifications_ — browser alerts fire on critical-severity events
+- _Simulation controls_ — play/pause and speed controls, useful for demos
+
+---
+
+## Architecture
 
 ```
 HazardLens/
 ├── server/
-│   ├── index.js            # Express server + SSE streaming
-│   ├── nlpPipeline.js      # NER engine — classification + entity extraction
-│   ├── geocoder.js         # 80+ NE India locations with lat/lng
-│   ├── fakeData.js         # 120 realistic disaster tweets for demo
-│   └── eventStore.js       # In-memory store with aggregations
-├── src/
-│   ├── App.jsx              # Main app shell
-│   ├── components/
-│   │   ├── LiveMap.jsx      # MapLibre GL map + heatmap layer
-│   │   ├── TweetFeed.jsx    # Real-time tweet sidebar
-│   │   ├── TimelinePanel.jsx# Trend charts + playback
-│   │   ├── StatsPanel.jsx   # Live statistics
-│   │   ├── AlertBanner.jsx  # Critical alert + push notifications
-│   │   └── Navbar.jsx       # Controls + live indicator
-│   └── utils/api.js         # API client + constants
+│ ├── index.js # Express server + SSE streaming
+│ ├── nlpPipeline.js # NER engine — classification + entity extraction
+│ ├── geocoder.js # 80+ NE India locations with lat/lng
+│ ├── fakeData.js # 120 realistic disaster tweets for demo
+│ └── eventStore.js # In-memory store with aggregations
+└── src/
+├── App.jsx
+└── components/
+├── LiveMap.jsx # MapLibre GL map + heatmap layer
+├── TweetFeed.jsx # Real-time tweet sidebar
+├── TimelinePanel.jsx # Trend charts + playback
+├── StatsPanel.jsx # Live statistics
+├── AlertBanner.jsx # Critical alert + push notifications
+└── Navbar.jsx # Controls + live indicator
 ```
 
-### NLP Pipeline
+### NLP pipeline
 
-The NER engine uses rule-based extraction optimized for disaster contexts:
+The NER engine does keyword-based classification across 6 disaster categories (flood, landslide, heavy rain, infrastructure, earthquake, storm), matches locations against a hand-curated list of 80+ NE India place names, assigns severity across 4 levels based on keyword intensity, and uses regex to pull out casualty or displacement numbers when they appear.
 
-- **Disaster Classification** — Keyword matching across 6 categories (flood, landslide, heavy rain, infrastructure, earthquake, storm)
-- **Location Extraction** — Matches against 80+ NE India place names (districts, cities, rivers)
-- **Severity Assessment** — 4 levels (critical → high → moderate → low) based on keyword intensity
-- **Affected Count** — Regex extraction of casualty/displacement numbers
-
-### Coverage
-
-All **8 North-East states**: Assam, Meghalaya, Nagaland, Manipur, Mizoram, Tripura, Arunachal Pradesh, Sikkim
+Coverage spans all 8 states: Assam, Meghalaya, Nagaland, Manipur, Mizoram, Tripura, Arunachal Pradesh, and Sikkim.
 
 ---
 
-## 🛠️ Tech Stack
+## Stack
 
-- **Frontend**: React 19 + Vite
-- **Map**: MapLibre GL JS (free, open-source)
-- **Tiles**: CartoDB Dark Matter (free, no API key)
-- **Charts**: Recharts
-- **Backend**: Express.js
-- **Streaming**: Server-Sent Events (SSE)
-- **NLP**: Custom rule-based NER engine
-
----
-
-## 🎬 Demo Tips
-
-1. Enable **Heatmap** to see disaster density hotspots
-2. Open **Timeline** and hit ▶ to watch disaster spread over time
-3. Click any tweet to **fly to its location** on the map
-4. Set speed to **Fast (3s)** for rapid real-time demo
-5. Watch for **critical alert banners** with push notifications
+| Layer     | Tech                                   |
+| --------- | -------------------------------------- |
+| Frontend  | React 19 + Vite                        |
+| Map       | MapLibre GL JS                         |
+| Tiles     | CartoDB Dark Matter (free, no API key) |
+| Charts    | Recharts                               |
+| Backend   | Express.js                             |
+| Streaming | Server-Sent Events                     |
+| NLP       | Custom rule-based NER                  |
 
 ---
 
-## 📄 License
+## Demo tips
 
-MIT
+- Turn on the _heatmap_ first — it immediately shows you where activity is clustering
+- Open the _timeline_ and hit play to watch events unfold chronologically
+- Crank speed to _Fast (3s)_ if you're demoing live
+- Click any tweet in the sidebar to jump the map to that location
+- Wait for a critical event to trigger the alert banner + browser notification
 
 ---
 
-_Built for the NER Hackathon — Tackling disaster response in North-East India through social media intelligence._
+```
+
+```
