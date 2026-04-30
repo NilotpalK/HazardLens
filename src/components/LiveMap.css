@@ -123,11 +123,20 @@
 }
 
 .mtc-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
   color: #555;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+}
+
+.mtc-stat svg,
+.mtp-engagement svg {
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 /* ===== Popup (expanded) — Vercel style ===== */
@@ -246,6 +255,12 @@
   padding-top: 8px;
   border-top: 1px solid rgba(255,255,255,0.06);
   font-variant-numeric: tabular-nums;
+}
+
+.mtp-engagement span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ===== Controls ===== */

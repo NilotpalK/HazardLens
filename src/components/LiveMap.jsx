@@ -357,6 +357,8 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
           };
         });
 
+      // Clear existing markers then set new ones
+      managerRef.current.removeMarkers();
       managerRef.current.updateMarkers(managerMarkers);
     };
 
