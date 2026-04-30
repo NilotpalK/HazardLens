@@ -1,0 +1,76 @@
+.stats-panel {
+  position: fixed;
+  top: 64px;
+  left: 12px;
+  z-index: 800;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 520px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  min-width: 110px;
+  animation: fadeInUp 0.5s ease both;
+}
+
+.stat-card:nth-child(2) { animation-delay: 0.05s; }
+.stat-card:nth-child(3) { animation-delay: 0.1s; }
+.stat-card:nth-child(4) { animation-delay: 0.15s; }
+.stat-card:nth-child(5) { animation-delay: 0.2s; }
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-value.critical-text { color: var(--critical); }
+.stat-value.high-text { color: var(--high); }
+.stat-value.accent-text { color: var(--accent); }
+
+.stat-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.severity-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sev-dot {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.sev-dot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.sev-dot-indicator.critical { background: var(--critical); box-shadow: 0 0 6px var(--critical-glow); }
+.sev-dot-indicator.high { background: var(--high); }
+.sev-dot-indicator.moderate { background: var(--moderate); }
+.sev-dot-indicator.low { background: var(--low); }
