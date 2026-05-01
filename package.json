@@ -7,6 +7,7 @@
     "dev": "vite",
     "server": "node server/index.js --watch",
     "build": "vite build",
+    "start": "node server/index.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

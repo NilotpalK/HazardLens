@@ -2,11 +2,16 @@
 
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import { processText } from "./nlpPipeline.js";
 import { translateText } from "./translator.js";
 import { geocodeBest, jitter, LOCATIONS } from "./geocoder.js";
 import { generateTweet, generateHistoricalBatch } from "./fakeData.js";
 import { EventStore } from "./eventStore.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -270,6 +275,18 @@ app.post("/api/simulation/stop", (req, res) => {
 
 app.get("/api/simulation/status", (req, res) => {
   res.json({ running: !!simulationInterval, interval: simulationSpeed });
+});
+
+// --- Serve static files (production) ---
+const distPath = path.join(__dirname, "..", "dist");
+app.use(express.static(distPath));
+
+// Serve images from public folder
+app.use("/images", express.static(path.join(__dirname, "..", "public", "images")));
+
+// SPA catch-all — must be after all API routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
 // --- Start ---
