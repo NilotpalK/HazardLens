@@ -94,6 +94,7 @@ async function processTweet(tweet) {
     relevancyScore: nlp.relevancyScore,
     relevancyBreakdown: nlp.relevancyBreakdown,
     engagement: tweet.engagement || {},
+    imageUrl: tweet.imageUrl || null,
   };
 }
 
@@ -224,6 +225,8 @@ async function seedHistoricalData() {
       store.add(event);
       seeded++;
     }
+    // Small delay to avoid hammering the translation API
+    await new Promise(r => setTimeout(r, 150));
   }
   console.log(`📊 Seeded ${seeded} historical events`);
 }

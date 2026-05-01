@@ -1,12 +1,13 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { fetchTrends } from '../utils/api';
 import './TimelinePanel.css';
 
-export default function TimelinePanel({ onClose, onTimeRangeChange, events, feedOpen }) {
+export default function TimelinePanel({ onClose, onTimeRangeChange, events, feedOpen, autoPlay }) {
   const [trendData, setTrendData] = useState([]);
   const [playing, setPlaying] = useState(false);
-  const [sliderValue, setSliderValue] = useState(100);
-  const animRef = useRef(null);
+  const [sliderValue, setSliderValue] = useState(0);
+  const intervalRef = useRef(null);
+  const autoPlayTriggered = useRef(false);
 
   useEffect(() => {
     fetchTrends(48).then(data => {
@@ -14,39 +15,63 @@ export default function TimelinePanel({ onClose, onTimeRangeChange, events, feed
     });
   }, [events.length]);
 
-  useEffect(() => {
-    if (!playing) {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-      return;
-    }
-
-    let value = 0;
-    const step = () => {
-      value += 0.3;
-      if (value > 100) {
-        value = 100;
-        setPlaying(false);
-      }
-      setSliderValue(value);
-      applyTimeRange(value);
-      if (value < 100) {
-        animRef.current = requestAnimationFrame(step);
-      }
-    };
-    animRef.current = requestAnimationFrame(step);
-
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [playing]);
-
-  const applyTimeRange = (value) => {
+  const applyTimeRange = useCallback((value) => {
     if (trendData.length === 0) return;
     const endIdx = Math.floor((value / 100) * (trendData.length - 1));
     const endTime = new Date(trendData[endIdx]?.time).getTime();
     const startTime = new Date(trendData[0]?.time).getTime();
     onTimeRangeChange?.(startTime, endTime);
-  };
+  }, [trendData, onTimeRangeChange]);
+
+  // Auto-play when timeline opens
+  useEffect(() => {
+    if (autoPlay && trendData.length > 0 && !autoPlayTriggered.current) {
+      autoPlayTriggered.current = true;
+      setSliderValue(0);
+      applyTimeRange(0);
+      // Small delay for the panel animation to complete before playback starts
+      const timer = setTimeout(() => {
+        setPlaying(true);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [autoPlay, trendData, applyTimeRange]);
+
+  // Playback engine — step through time buckets at a steady pace
+  useEffect(() => {
+    if (!playing) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    // Calculate step size: one time bucket per tick
+    const stepSize = trendData.length > 0 ? (100 / (trendData.length - 1)) : 1;
+    // Tick interval — controls animation speed (lower = faster)
+    const tickMs = 120;
+
+    intervalRef.current = setInterval(() => {
+      setSliderValue(prev => {
+        let next = prev + stepSize;
+        if (next >= 100) {
+          next = 100;
+          // Stop at the end
+          setTimeout(() => setPlaying(false), 0);
+        }
+        applyTimeRange(next);
+        return next;
+      });
+    }, tickMs);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [playing, trendData, applyTimeRange]);
 
   const handleBarClick = (index) => {
     if (trendData.length === 0) return;
@@ -59,7 +84,21 @@ export default function TimelinePanel({ onClose, onTimeRangeChange, events, feed
   const handleSliderInput = (e) => {
     const val = Number(e.target.value);
     setSliderValue(val);
+    setPlaying(false);
     applyTimeRange(val);
+  };
+
+  const handlePlayPause = () => {
+    if (playing) {
+      setPlaying(false);
+    } else {
+      // If at the end, restart from beginning
+      if (sliderValue >= 100) {
+        setSliderValue(0);
+        applyTimeRange(0);
+      }
+      setPlaying(true);
+    }
   };
 
   const currentIdx = Math.floor((sliderValue / 100) * Math.max(trendData.length - 1, 0));
@@ -79,11 +118,8 @@ export default function TimelinePanel({ onClose, onTimeRangeChange, events, feed
     <div className="timeline-panel" id="timeline-panel" style={{ right: feedOpen ? '340px' : '0' }}>
       <div className="tl-row">
         <button
-          className="tl-play"
-          onClick={() => {
-            if (sliderValue >= 100) setSliderValue(0);
-            setPlaying(!playing);
-          }}
+          className={`tl-play ${playing ? 'tl-play-active' : ''}`}
+          onClick={handlePlayPause}
         >
           {playing ? '⏸' : '▶'}
         </button>
@@ -95,6 +131,7 @@ export default function TimelinePanel({ onClose, onTimeRangeChange, events, feed
               const total = (d.flood || 0) + (d.landslide || 0) + (d.heavy_rain || 0) + (d.infrastructure || 0);
               const intensity = total / maxTotal;
               const isVisible = i <= currentIdx;
+              const isCurrent = i === currentIdx;
               return (
                 <div
                   key={i}
@@ -102,7 +139,7 @@ export default function TimelinePanel({ onClose, onTimeRangeChange, events, feed
                   onClick={() => handleBarClick(i)}
                 >
                   <div
-                    className={`tl-bar ${isVisible ? '' : 'tl-bar-dim'}`}
+                    className={`tl-bar ${isVisible ? '' : 'tl-bar-dim'} ${isCurrent && playing ? 'tl-bar-pulse' : ''}`}
                     style={{
                       height: `${Math.max(intensity * 100, 6)}%`,
                       opacity: isVisible ? (0.3 + intensity * 0.7) : 0.08,
@@ -118,7 +155,7 @@ export default function TimelinePanel({ onClose, onTimeRangeChange, events, feed
             {trendData.map((d, i) => (
               <div key={i} className="tl-label-slot">
                 {i % labelInterval === 0 && (
-                  <span className="tl-label">{d.hour}:00</span>
+                  <span className={`tl-label ${i <= currentIdx ? 'tl-label-active' : ''}`}>{d.hour}:00</span>
                 )}
               </div>
             ))}

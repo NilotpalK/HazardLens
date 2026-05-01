@@ -34,6 +34,11 @@ export default function LiveFeed({ events, onSelectEvent, onClose }) {
               <span className="feed-item-time">{timeAgo(event.timestamp)}</span>
             </div>
             <div className="feed-item-text">{event.text}</div>
+            {event.imageUrl && (
+              <div className="feed-item-image">
+                <img src={event.imageUrl} alt="" loading="lazy" />
+              </div>
+            )}
             <div className="feed-item-meta">
               <span className="feed-item-type">
                 {DISASTER_TYPES[event.disasterType]?.label || 'Unknown'}

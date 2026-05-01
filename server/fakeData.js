@@ -29,11 +29,19 @@ const HANDLES = [
 
 const SOURCES = ["twitter", "twitter", "twitter", "reddit"];
 
+// Images available for image tweets (served from /images/)
+const IMAGE_URLS = [
+  "/images/flood1.jpeg",
+  "/images/flood2.jpeg",
+  "/images/flood3.jpeg",
+];
+
 const TWEET_TEMPLATES = [
   // ===== FLOODS (40 tweets) =====
   {
     text: "🚨 BREAKING: Brahmaputra water level crosses danger mark at Guwahati. Over 5000 people evacuated from Kamrup district. #AssamFloods",
     locations: ["guwahati", "kamrup"],
+    imageUrl: "/images/flood1.jpeg",
   },
   {
     text: "Massive flooding in Nagaon district. Water has entered homes in low-lying areas. 200+ families displaced. Relief camps set up at schools. #FloodAlert",
@@ -42,6 +50,7 @@ const TWEET_TEMPLATES = [
   {
     text: "Morigaon is completely submerged. No electricity for 3 days. People stranded on rooftops. NDRF teams deployed. SOS 🆘",
     locations: ["morigaon"],
+    imageUrl: "/images/flood2.jpeg",
   },
   {
     text: "Barpeta road cut off due to flooding. Brahmaputra embankment breached at two points. Thousands marooned. #AssamFlood2026",
@@ -50,10 +59,12 @@ const TWEET_TEMPLATES = [
   {
     text: "Dhemaji faces unprecedented flooding. Subansiri river overflowing. Over 300 villages affected. Army called in for rescue operations.",
     locations: ["dhemaji", "subansiri"],
+    imageUrl: "/images/flood3.jpeg",
   },
   {
     text: "Majuli, the world's largest river island, is facing severe erosion. 15 families lost their homes overnight. The island is shrinking. 😢",
     locations: ["majuli"],
+    imageUrl: "/images/flood1.jpeg",
   },
   {
     text: "Water level rising rapidly in Silchar. Barak river above danger level. Cachar DC orders evacuation of riverside areas. #BarakValleyFloods",
@@ -62,6 +73,7 @@ const TWEET_TEMPLATES = [
   {
     text: "Dibrugarh town flooded for the first time in 10 years. Market areas waterlogged. Shops and businesses severely damaged.",
     locations: ["dibrugarh"],
+    imageUrl: "/images/flood2.jpeg",
   },
   {
     text: "Relief camp in Lakhimpur running out of food and clean water. 1500 people sheltering there. Urgent help needed! #AssamNeedsHelp",
@@ -98,6 +110,7 @@ const TWEET_TEMPLATES = [
   {
     text: "Hailakandi town under 4 feet of water. Hospital ground floor submerged. Patients shifted to upper floors. Critical situation.",
     locations: ["hailakandi"],
+    imageUrl: "/images/flood3.jpeg",
   },
   {
     text: "Tinsukia faces severe waterlogging. Drainage system completely failed. Residents angry at administration. #TinsukiaFloods",
@@ -126,6 +139,7 @@ const TWEET_TEMPLATES = [
   {
     text: "Imphal river overflowing in Thoubal. Bishnupur low-lying areas submerged. Manipur flood toll rises to devastating levels.",
     locations: ["imphal", "thoubal", "bishnupur"],
+    imageUrl: "/images/flood1.jpeg",
   },
   {
     text: "Teesta river swelling in North Sikkim. Mangan on high alert. Glacial lake concerns mount. All tourists advised to evacuate.",
@@ -298,6 +312,7 @@ const TWEET_TEMPLATES = [
   {
     text: "My village in Morigaon has been underwater for a week. We've lost everything. No government help has come. Please share. #AssamCries",
     locations: ["morigaon"],
+    imageUrl: "/images/flood2.jpeg",
   },
   {
     text: "Can anyone help? My family in Majuli has been on their roof for 2 days. Boats are not reaching. The current is too strong. 😭",
@@ -314,6 +329,7 @@ const TWEET_TEMPLATES = [
   {
     text: "r/india — Assam flood situation is catastrophic. Brahmaputra has swallowed entire villages in Dhubri. Media is not covering this enough.",
     locations: ["assam", "brahmaputra", "dhubri"],
+    imageUrl: "/images/flood3.jpeg",
   },
   {
     text: "Kohima update: After 3 days of being stranded, NH finally partially cleared. But another landslide expected tonight. Pray for Nagaland. 🙏",
@@ -342,6 +358,23 @@ const TWEET_TEMPLATES = [
   {
     text: "Friend stuck in Churachandpur with no food. All shops closed. Roads blocked. Manipur government where are you? #ManipurFloods",
     locations: ["churachandpur"],
+  },
+
+  // ===== REGIONAL LANGUAGE TWEETS (Manipuri, Assamese, Bengali) =====
+  {
+    text: "ইম্ফালদা ঈচাওবা নোংপোক লাকখ্রে, লম্বী অমসুং ইমুং-ইনুংশীং তুরেল ঈশীংনা থাদোকখ্রে।",
+    locations: ["imphal"],
+    imageUrl: "/images/flood1.jpeg",
+  },
+  {
+    text: "নগাঁৱত বানপানীৰ পৰিস্থিতি অত্যন্ত ভয়াৱহ, হাজাৰ হাজাৰ লোক ঘৰ এৰি আশ্ৰয় শিবিৰত আশ্ৰয় লৈছে।",
+    locations: ["nagaon"],
+    imageUrl: "/images/flood2.jpeg",
+  },
+  {
+    text: "আগরতলায় ভয়াবহ বন্যা, রাস্তায় বুক সমান জল জমেছে, হাজার হাজার মানুষ ত্রাণ শিবিরে আশ্রয় নিয়েছে।",
+    locations: ["agartala"],
+    imageUrl: "/images/flood3.jpeg",
   },
 ];
 
@@ -713,6 +746,7 @@ function generateTweet() {
     source,
     timestamp,
     hintLocations: template.locations,
+    imageUrl: template.imageUrl || null,
     isNoise: false,
     engagement: generateEngagement(handle, false),
     accountMeta: ACCOUNT_PROFILES[handle] || {
@@ -752,6 +786,7 @@ function generateHistoricalBatch(count = 50, hoursBack = 48) {
       source,
       timestamp,
       hintLocations: template.locations,
+      imageUrl: template.imageUrl || null,
       isNoise: isNoise,
       engagement: generateEngagement(handle, isNoise),
       accountMeta: ACCOUNT_PROFILES[handle] || {

@@ -309,3 +309,68 @@
 [class*="arenarium"] {
   display: none !important;
 }
+
+/* ===== Image Tweet: Tooltip ===== */
+.mtc-has-image {
+  padding: 0;
+  gap: 0;
+}
+
+.mtc-has-image .mtc-header,
+.mtc-has-image .mtc-text,
+.mtc-has-image .mtc-footer {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.mtc-has-image .mtc-header { padding-top: 10px; }
+.mtc-has-image .mtc-footer { padding-bottom: 10px; padding-top: 6px; margin-top: auto; }
+.mtc-has-image .mtc-text { padding-top: 4px; padding-bottom: 4px; }
+
+.mtc-image {
+  width: 100%;
+  height: 110px;
+  overflow: hidden;
+  border-radius: 8px 8px 0 0;
+  flex-shrink: 0;
+}
+
+.mtc-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===== Image Tweet: Popup ===== */
+.mtp-has-image {
+  padding: 0;
+  gap: 0;
+}
+
+.mtp-has-image .mtp-header,
+.mtp-has-image .mtp-text,
+.mtp-has-image .mtp-meta,
+.mtp-has-image .mtp-engagement {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.mtp-has-image .mtp-header { padding-top: 14px; }
+.mtp-has-image .mtp-text { padding-top: 4px; }
+.mtp-has-image .mtp-engagement { padding-bottom: 14px; margin-top: auto; }
+
+.mtp-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+  flex-shrink: 0;
+}
+
+.mtp-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

@@ -90,10 +90,15 @@ export default function App() {
   );
 
   const handleToggleTimeline = () => {
-    setTimelineActive(!timelineActive);
-    if (timelineActive) {
+    const willBeActive = !timelineActive;
+    setTimelineActive(willBeActive);
+    if (willBeActive) {
+      // Auto-enable heatmap and start from beginning
+      setHeatmapActive(true);
+    } else {
       setTimeRange(null);
       setDisplayEvents(events);
+      setHeatmapActive(false);
     }
   };
 
@@ -104,6 +109,7 @@ export default function App() {
         heatmapActive={heatmapActive}
         selectedEvent={selectedEvent}
         isDarkMode={isDarkMode}
+        timelineActive={timelineActive}
       />
 
       {feedOpen && (
@@ -167,10 +173,12 @@ export default function App() {
         <TimelinePanel
           events={events}
           feedOpen={feedOpen}
+          autoPlay={true}
           onClose={() => {
             setTimelineActive(false);
             setTimeRange(null);
             setDisplayEvents(events);
+            setHeatmapActive(false);
           }}
           onTimeRangeChange={handleTimeRangeChange}
         />

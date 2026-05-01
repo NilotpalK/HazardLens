@@ -43,7 +43,7 @@ const ICON = {
 // --- Tooltip: tweet card on map with Twitter icons ---
 const createTooltipElement = (event) => {
   const el = document.createElement("div");
-  el.className = "map-tweet-card";
+  el.className = `map-tweet-card ${event.imageUrl ? 'mtc-has-image' : ''}`;
   const engagement = event.engagement || {};
   const severity = event.severity || "low";
 
@@ -54,6 +54,7 @@ const createTooltipElement = (event) => {
   };
 
   el.innerHTML = `
+    ${event.imageUrl ? `<div class="mtc-image"><img src="${event.imageUrl}" alt="" loading="lazy" /></div>` : ""}
     <div class="mtc-header">
       <div class="mtc-dot ${severity}"></div>
       <span class="mtc-name">${event.locationName || "Unknown"}</span>
@@ -86,13 +87,14 @@ const createTooltipElement = (event) => {
 // --- Popup: expanded view with Twitter icons ---
 const createPopupElement = (event) => {
   const el = document.createElement("div");
-  el.className = "map-tweet-popup";
+  el.className = `map-tweet-popup ${event.imageUrl ? 'mtp-has-image' : ''}`;
   const engagement = event.engagement || {};
   const severity = event.severity || "low";
   const typeLabel = DISASTER_TYPES[event.disasterType]?.label || "Unknown";
   const relevancy = event.relevancyScore ? Math.round(event.relevancyScore * 100) : "—";
 
   el.innerHTML = `
+    ${event.imageUrl ? `<div class="mtp-image"><img src="${event.imageUrl}" alt="" loading="lazy" /></div>` : ""}
     <div class="mtp-header">
       <div class="mtp-dot ${severity}"></div>
       <div class="mtp-user">
@@ -134,7 +136,7 @@ const createPopupElement = (event) => {
 
 
 
-export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMode }) {
+export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMode, timelineActive }) {
   const mapContainer = useRef(null);
   const providerRef = useRef(null);
   const managerRef = useRef(null);
@@ -246,11 +248,11 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
     }
   }, [isDarkMode]);
 
-  // Toggle heatmap visibility
+  // Toggle heatmap visibility + update radius for timeline animation
   useEffect(() => {
     if (!providerRef.current) return;
     const map = providerRef.current.getMap();
-    const setVisibility = () => {
+    const updateHeatmap = () => {
       try {
         if (map.getLayer("heatmap-layer")) {
           map.setLayoutProperty(
@@ -258,17 +260,31 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
             "visibility",
             heatmapActive ? "visible" : "none",
           );
+          // Dynamically adjust radius for weather-app spread effect
+          map.setPaintProperty("heatmap-layer", "heatmap-radius", [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            5, timelineActive ? 45 : 30,
+            10, timelineActive ? 70 : 50,
+            14, timelineActive ? 110 : 80,
+          ]);
+          map.setPaintProperty(
+            "heatmap-layer",
+            "heatmap-opacity",
+            timelineActive ? 0.85 : 0.8,
+          );
         }
       } catch (e) {
         /* layer may not exist yet */
       }
     };
     if (map.isStyleLoaded()) {
-      setVisibility();
+      updateHeatmap();
     } else {
-      map.once("load", setVisibility);
+      map.once("load", updateHeatmap);
     }
-  }, [heatmapActive, tokenMissing]);
+  }, [heatmapActive, timelineActive, tokenMissing]);
 
   // Update markers and heatmap data
   useEffect(() => {
@@ -311,11 +327,11 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
               "interpolate",
               ["linear"],
               ["zoom"],
-              5, 30,
-              10, 50,
-              14, 80,
+              5, timelineActive ? 45 : 30,
+              10, timelineActive ? 70 : 50,
+              14, timelineActive ? 110 : 80,
             ],
-            "heatmap-opacity": 0.8,
+            "heatmap-opacity": timelineActive ? 0.85 : 0.8,
           },
         });
       }
@@ -359,8 +375,8 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
             tooltip: {
               element: createTooltipElement(event),
               dimensions: {
-                width: 210,
-                height: 130,
+                width: event.imageUrl ? 240 : 210,
+                height: event.imageUrl ? 240 : 130,
                 padding: 28,
               },
               style: {
@@ -372,8 +388,8 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
             popup: {
               element: createPopupElement(event),
               dimensions: {
-                width: 300,
-                height: 240,
+                width: event.imageUrl ? 320 : 300,
+                height: event.imageUrl ? 400 : 240,
                 padding: 8,
               },
               style: {
@@ -401,7 +417,7 @@ export default function LiveMap({ events, heatmapActive, selectedEvent, isDarkMo
     return () => {
       map.off("style.load", updateMap);
     };
-  }, [events, tokenMissing, heatmapActive, isDarkMode]);
+  }, [events, tokenMissing, heatmapActive, isDarkMode, timelineActive]);
 
   // Fly to selected event
   useEffect(() => {

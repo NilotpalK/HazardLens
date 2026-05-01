@@ -175,3 +175,19 @@
   color: #444;
   text-transform: capitalize;
 }
+
+/* Image tweet in feed */
+.feed-item-image {
+  width: 100%;
+  height: 140px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.feed-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
