@@ -1,5 +1,7 @@
 # HazardLens
 
+Hackathon Champions!
+
 Real-time disaster detection for North-East India — built on social media signals and a lightweight NLP pipeline.
 
 NE India deals with frequent floods, landslides, and heavy monsoon events year-round. The problem isn't that disasters are unpredictable — it's that information reaches the people who need it too slowly. When something goes wrong, locals post about it immediately. HazardLens taps into that signal, extracts what matters, and puts it on a live map.
